@@ -177,23 +177,70 @@ module.exports = {
       req.session.error = undefined;
     }
 
-    Bank.findOne({id: req.params.id})
-      .then((bank) => {
+    Bank.native((err, collection)=>{
 
-        res.view('bank/edit', {
-          fields: bank,
-          errors: errors,
-          fieldNames: fieldNames,
-          moment: moment
+      if (err) return res.serverError(err);
+
+      collection.find({}, {
+        subcategory:1, id:0
+      })
+        .then((subcategory) => {
+          console.log(subcategory)
         });
 
+    });
 
-      })
-      .catch((error) => {
-        console.log(error);
-        res.redirect("/bank/edit/" + req.params.id);
 
-      });
+
+
+    // Bank.find({
+    //   select: ['category']
+    // })
+    //   .then((category) => {
+    //
+    //     // returning values not promise object
+    //     return  Bank.find({}, {
+    //       subcategory:1, id:0
+    //     })
+    //       .then((subcategory) => {
+    //
+    //         // returning cat and subcat
+    //         // NOTE:: cat cannot be returned from its own scope
+    //         // cat should be returned form nested scope i.e. from here
+    //         // otherwise it will return promise instead of cat
+    //         return [category, subcategory];
+    //       });
+    //   })
+    //   .then((array) => {
+    //
+    //     let subcat = array.pop();
+    //     let cat = array.pop();
+    //
+    //     console.log(subcat)
+    //     console.log(cat)
+    //
+    //     Bank.findOne({id: req.params.id})
+    //       .then((bank) => {
+    //
+    //         res.view('bank/edit', {
+    //           fields: bank,
+    //           errors: errors,
+    //           fieldNames: fieldNames,
+    //           subcat: subcat,
+    //           cat: cat,
+    //           moment: moment
+    //         });
+    //
+    //
+    //       })
+    //       .catch((error) => {
+    //         console.log(error);
+    //         res.redirect("/bank/edit/" + req.params.id);
+    //
+    //       });
+    //
+    //   });
+
 
   }),
 
@@ -264,7 +311,7 @@ module.exports = {
   /**
    * This is ajax call to get autocomplete value for category
    */
-  category: ((req, res) => {
+/*  category: ((req, res) => {
 
     if (!req.param('term')) {
       req.json({
@@ -299,13 +346,13 @@ module.exports = {
         })
       });
 
-  }),
+  }),*/
 
 
   /**
    * This is ajax call to get autocomplete value for category
    */
-  subcategory: ((req, res) => {
+  /*subcategory: ((req, res) => {
 
     if (!req.param('term')) {
       req.json({
@@ -341,7 +388,7 @@ module.exports = {
         })
       });
 
-  }),
+  }),*/
 
 
   /**

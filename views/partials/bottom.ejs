@@ -23,34 +23,36 @@
   };
 
 
-  var subcat = [];
-  <% subcat.forEach(function(item){ %>
-  subcat.push('<%= item.subcategory %>')
-  <% }); %>
+  <% if(typeof subcat !== 'undefined') {%>
+      var subcat = [];
+      <% subcat.forEach(function(item){ %>
+      subcat.push('<%= item.subcategory %>')
+      <% }); %>
+      $('#subcat .subcat').typeahead({
+          hint: true,
+          highlight: true,
+          minLength: 1
+        },
+        {
+          name: 'subcategory',
+          source: substringMatcher(subcat)
+        });
+  <% } %>
 
-  var cat = [];
-  <% cat.forEach(function(item){ %>
-  cat.push('<%= item.category %>')
-  <% }); %>
 
-  $('#subcat .subcat').typeahead({
-      hint: true,
-      highlight: true,
-      minLength: 1
-    },
-    {
-      name: 'subcategory',
-      source: substringMatcher(subcat)
-    });
-
-  $('#cat .cat').typeahead({
-      hint: true,
-      highlight: true,
-      minLength: 1
-    },
-    {
-      name: 'category',
-      source: substringMatcher(cat)
-    });
-
+  <% if(typeof cat !== 'undefined') {%>
+      var cat = [];
+      <% cat.forEach(function(item){ %>
+      cat.push('<%= item.category %>')
+      <% }); %>
+      $('#cat .cat').typeahead({
+          hint: true,
+          highlight: true,
+          minLength: 1
+        },
+        {
+          name: 'category',
+          source: substringMatcher(cat)
+        });
+  <% } %>
 </script>

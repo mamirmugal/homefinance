@@ -169,3 +169,7 @@
 #rtl-support .tt-menu {
     text-align: right;
 }
+
+.autocomplete span{
+    width:100%;
+}
