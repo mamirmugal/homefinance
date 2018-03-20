@@ -1,0 +1,71 @@
+<div class="row  mb-3">
+    <div class="col-md-1"></div>
+    <div class="col-md-5 text-left">
+        <a href="/bank/filter" class="btn btn-info">Filter</a>
+    </div>
+    <div class="col-md-5 text-right">
+        <a href="/bank/add" class="btn btn-primary">Add Bank details</a>
+    </div>
+    <div class="col-md-1"></div>
+</div>
+<div class="clear-fix"></div>
+<div class="row">
+    <div class="col-md-1"></div>
+    <div class="col-md-10">
+        <table class="table table-striped">
+            <thead class="thead-dark">
+            <tr>
+                <th>Date</th>
+                <th>Title</th>
+                <th>Category</th>
+                <!--<th>Category</th>-->
+                <th>Sub - Category</th>
+                <!--<th>Sub - Category</th>-->
+                <th>Amount Type</th>
+                <th>Amount</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <% bankDetails.forEach(function(details){ %>
+            <tr>
+                <td><%= moment(details.dates).format('DD-MM-YYYY') %></td>
+                <td><%= details.title %></td>
+                <td><%= details.category %></td>
+                <!--<td><%= details.slug_category %></td>-->
+                <td><%= details.subcategory %></td>
+                <!--<td><%= details.slug_subcategory %></td>-->
+                <td><%= details.amount_type %></td>
+                <td><%= details.amount %></td>
+                <td>
+                    <a class="btn btn-info" href="/bank/edit/<%= details.id %>">Edit</a>
+                    <a class="btn btn-warning" href="delBank(<%= details.id %>)">Delete</a>
+                </td>
+            </tr>
+            <% }) %>
+        </table>
+    </div>
+    <div class="col-md-1"></div>
+</div>
+
+
+<%
+var ii = 1;
+var jj = page + 1;
+var prevEnd = limit * (page - 1);
+var nextStart =limit * page;
+%>
+<div class="row  mt-3 mb-5">
+    <div class="col-md-1"></div>
+    <div class="col-md-5 text-left">
+        <% for ( var i = 1; i < prevEnd; i = i + limit) { %>
+        <a href="/bank?page=<%= ii %>" class="btn btn-info"><%= ii++ %></a>
+        <% } %>
+    </div>
+    <div class="col-md-5 text-right">
+        <% for(let j =  nextStart; j < count ; j = j + limit) { %>
+        <a href="/bank?page=<%= jj %>" class="btn btn-info"><%= jj++ %></a>
+        <% } %>
+    </div>
+    <div class="col-md-1"></div>
+</div>
+<div class="clear-fix"></div>

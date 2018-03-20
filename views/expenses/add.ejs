@@ -1,0 +1,96 @@
+<div class="row  mb-10">
+    <div class="col-md-4"></div>
+    <div class="col-md-4 text-right">
+    </div>
+    <div class="col-md-4"></div>
+</div>
+<div class="clear-fix"></div>
+<div class="row">
+    <div class="col-md-3"></div>
+    <div class="col-md-6">
+
+        <!-- Expense form -->
+        <form name="add_expenses" method="post" action="/expenses/create">
+
+            <div class="form-group row">
+                <label for="expenses_from" class="col-sm-3 col-form-label">Expenses From</label>
+                <div class="col-sm-9">
+                    <select class="custom-select mr-sm-2" id="expenses_from" name="expenses_from">
+                        <option selected value="credit_cards">Credit Cards</option>
+                        <option value="bank">Comm Bank</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label for="dates" class="col-sm-3 col-form-label">Date</label>
+                <div class="col-sm-9">
+                    <input type="text" readonly class="form-control datepicker" id="dates" value="16/07/2018">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="payment_type" class="col-sm-3 col-form-label">Payment type</label>
+                <div class="col-sm-9">
+                    <select class="custom-select mr-sm-2" id="payment_type" name="payment_type">
+                        <option selected>Choose...</option>
+                        <option value="credit_comm">Credit Card CommBank</option>
+                        <option value="credit_nab">Credit Nab Bank</option>
+                        <option value="comm">CommBank Account</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="category_id" class="col-sm-3 col-form-label">Category</label>
+                <div class="col-sm-9">
+                    <select class="custom-select mr-sm-2" id="category_id" name="category_id">
+                        <!--<option selected>Choose...</option>-->
+                        <%categories.forEach((category) => { %>
+                        <option value="<%=category.id%>"><%=category.title%></option>
+                        <% })%>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="subcategory_id" class="col-sm-3 col-form-label">Sub Category</label>
+                <div class="col-sm-9">
+                    <select class="custom-select mr-sm-2" id="subcategory_id" name="subcategory_id">
+                        <option selected>Choose...</option>
+
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="descp" class="col-sm-3 col-form-label">Description</label>
+                <div class="col-sm-9">
+                    <textarea class="custom-select mr-sm-2" name="descp" id="descp" cols="30" rows="10"></textarea>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="quantity" class="col-sm-3 col-form-label">Quantity</label>
+                <div class="col-sm-9">
+                    <input type="text" class="custom-select mr-sm-2" name="quantity" id="quantity">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="price" class="col-sm-3 col-form-label">Price</label>
+                <div class="col-sm-9">
+                    <input type="text" class="custom-select mr-sm-2" name="price" id="price">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="total_price" class="col-sm-3 col-form-label">Total price per product</label>
+                <div class="col-sm-9">
+                    <input type="text" class="custom-select mr-sm-2" name="total_price" id="total_price">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="total_price" class="col-sm-3 col-form-label"></label>
+                <div class="col-sm-9">
+                    <button class="btn btn-primary" type="submit">Submit</button>
+                </div>
+            </div>
+        </form>
+
+    </div>
+    <div class="col-md-3"></div>
+</div>

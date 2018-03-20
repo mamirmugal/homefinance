@@ -1,0 +1,31 @@
+<div class="row  mb-10">
+    <div class="col-md-4"></div>
+    <div class="col-md-4 text-right">
+        <a href="/expenses/add" class="btn btn-primary">Add Expenses</a>
+    </div>
+    <div class="col-md-4"></div>
+</div>
+<div class="clear-fix"></div>
+<div class="row">
+    <div class="col-md-3"></div>
+    <div class="col-md-6">
+        <table class="table table-striped">
+            <thead class="thead-dark">
+            <tr>
+                <th>Title</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <% expenses.forEach(function(expense){ %>
+            <tr>
+                <td><%= expense.title %></td>
+                <td>
+                    <a class="btn btn-info" href="/category/edit/<%= expense.id %>">Edit</a>
+                    <a class="btn btn-warning" href="/category/delete/<%= expense.id %>">Delete</a>
+                </td>
+            </tr>
+            <% }) %>
+        </table>
+    </div>
+    <div class="col-md-3"></div>
+</div>

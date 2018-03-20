@@ -1,0 +1,15 @@
+<%
+var success = myProjService.getSuccess(req);
+var error = myProjService.getError(req);
+%>
+<% if(typeof success !== 'undefined') {%>
+<div class="alert alert-success" role="alert">
+    <%= success%>
+</div>
+<% } %>
+
+<% if(typeof error !== 'undefined') {%>
+<div class="alert alert-danger" role="alert">
+    <%= error%>
+</div>
+<% } %>
