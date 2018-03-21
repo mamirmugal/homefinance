@@ -76,42 +76,116 @@ module.exports = {
       req.session.error = undefined;
     }
 
-    Bank.find({
-      select: ['category']
-    })
-      .then((category) => {
+    // Bank.find({
+    //   select: ['category']
+    // })
+    //   .then((category) => {
+    //
+    //     // returning values not promise object
+    //     return Bank.find({
+    //       select: ['subcategory']
+    //     })
+    //       .then((subcategory) => {
+    //
+    //         // returning cat and subcat
+    //         // NOTE:: cat cannot be returned from its own scope
+    //         // cat should be returned form nested scope i.e. from here
+    //         // otherwise it will return promise instead of cat
+    //         return [category, subcategory];
+    //       });
+    //   })
+    //   .then((array) => {
+    //
+    //     let subcat = array.pop();
+    //     let cat = array.pop();
+    //
+    //     console.log(subcat)
+    //     console.log(cat)
+    //
+    //     res.view('bank/add', {
+    //       dates: dates,
+    //       fields: fields,
+    //       errors: errors,
+    //       fieldNames: fieldNames,
+    //       subcat: subcat,
+    //       cat: cat,
+    //       test: "test worked"
+    //     });
+    //
+    //   });
 
-        // returning values not promise object
-        return  Bank.find({
-          select: ['subcategory']
-        })
-          .then((subcategory) => {
 
-            // returning cat and subcat
-            // NOTE:: cat cannot be returned from its own scope
-            // cat should be returned form nested scope i.e. from here
-            // otherwise it will return promise instead of cat
-            return [category, subcategory];
-          });
-      })
-      .then((array) => {
+    // Promise to fix the native mongo command
+    let promise = new Promise((resolve, reject) => {
 
-      let subcat = array.pop();
-      let cat = array.pop();
+      Bank.native((err, collection) => {
 
-      res.view('bank/add', {
-        dates: dates,
-        fields: fields,
-        errors: errors,
-        fieldNames: fieldNames,
-        subcat: subcat,
-        cat: cat,
-        test:"test worked"
+        // throw error when error
+        if (err)
+          reject(err);
+
+
+        // collection.find(
+        //   {},
+        //   {category: 1, _id: 0}
+        // ).toArray(function (err, rows) {
+
+        collection.distinct('category', (err, rows) => {
+
+          // error then throw error
+          if (err)
+            reject(err);
+
+          // if resolved the send to next promise
+          resolve(rows);
+        });
       });
 
     });
 
+    promise.then((categories) => {
 
+      return new Promise((resolve, reject) => {
+
+        Bank.native((err, collection) => {
+
+          // throw error when error
+          if (err)
+            reject(err);
+
+          // collection.find(
+          //   {},
+          //   {subcategory: 1, _id: 0}
+          // ).toArray(function (err, rows) {
+
+          collection.distinct('subcategory', (err, rows) => {
+
+            // error then throw error
+            if (err)
+              reject(err);
+
+            // if resolved the send to next promise
+            resolve([categories, rows]);
+          });
+        });
+
+      });
+
+    })
+      .then((array) => {
+
+        let subcat = array.pop();
+        let cat = array.pop();
+
+        res.view('bank/add', {
+          dates: dates,
+          fields: fields,
+          errors: errors,
+          fieldNames: fieldNames,
+          subcat: subcat,
+          cat: cat
+        });
+      });
 
 
   }),
@@ -177,20 +251,89 @@ module.exports = {
       req.session.error = undefined;
     }
 
-    Bank.native((err, collection)=>{
 
-      if (err) return res.serverError(err);
+    // Promise to fix the native mongo command
+    let promise = new Promise((resolve, reject) => {
 
-      collection.find({}, {
-        subcategory:1, id:0
-      })
-        .then((subcategory) => {
-          console.log(subcategory)
+      Bank.native((err, collection) => {
+
+        // throw error when error
+        if (err)
+          reject(err);
+
+
+        // collection.find(
+        //   {},
+        //   {category: 1, _id: 0}
+        // ).toArray(function (err, rows) {
+
+        collection.distinct('category', (err, rows) => {
+
+          // error then throw error
+          if (err)
+            reject(err);
+
+          // if resolved the send to next promise
+          resolve(rows);
         });
+      });
 
     });
 
+    promise.then((categories) => {
 
+      return new Promise((resolve, reject) => {
+
+        Bank.native((err, collection) => {
+
+          // throw error when error
+          if (err)
+            reject(err);
+
+          // collection.find(
+          //   {},
+          //   {subcategory: 1, _id: 0}
+          // ).toArray(function (err, rows) {
+
+          collection.distinct('subcategory', (err, rows) => {
+
+            // error then throw error
+            if (err)
+              reject(err);
+
+            // if resolved the send to next promise
+            resolve([categories, rows]);
+          });
+        });
+
+      });
+
+    })
+      .then((array) => {
+
+        let subcat = array.pop()
+        let cat = array.pop()
+
+        console.log(subcat)
+        console.log(cat)
+
+        Bank.findOne({id: req.params.id})
+          .then((bank) => {
+
+            res.view('bank/edit', {
+              fields: bank,
+              errors: errors,
+              fieldNames: fieldNames,
+              subcat: subcat,
+              cat: cat,
+              moment: moment
+            });
+
+          })
+          .catch((err) => {
+            console.log(err)
+          });
+      });
 
 
     // Bank.find({
@@ -289,64 +432,65 @@ module.exports = {
   /**
    * Delete bank transection
    */
-  delete: ((req, res) => {
+  delete:
+    ((req, res) => {
 
-    if (!req.params.id) {
-      myProjService.setError(req, "Bank id was not set");
-      res.redirect('/bank');
-    }
-
-    Bank.destroy({id: req.params.id})
-      .then((msg) => {
-        myProjService.setSuccess(req, "Deleted Successfully!");
+      if (!req.params.id) {
+        myProjService.setError(req, "Bank id was not set");
         res.redirect('/bank');
-      })
-      .catch((error) => {
-        console.log(error);
-        res.send(500, "Issue while deleting");
-      })
-  }),
+      }
+
+      Bank.destroy({id: req.params.id})
+        .then((msg) => {
+          myProjService.setSuccess(req, "Deleted Successfully!");
+          res.redirect('/bank');
+        })
+        .catch((error) => {
+          console.log(error);
+          res.send(500, "Issue while deleting");
+        })
+    }),
 
 
   /**
    * This is ajax call to get autocomplete value for category
    */
-/*  category: ((req, res) => {
+  /*  category: ((req, res) => {
 
-    if (!req.param('term')) {
-      req.json({
-        error: "Value not sent"
+      if (!req.param('term')) {
+        req.json({
+          error: "Value not sent"
+        })
+      }
+
+      Bank.find({
+        slug_category: {
+          'contains': req.param('term')
+        },
+        select: ['category']
       })
-    }
+        .then((categories) => {
 
-    Bank.find({
-      slug_category: {
-        'contains': req.param('term')
-      },
-      select: ['category']
-    })
-      .then((categories) => {
+          let ret = {};
+          let array = [];
+          let i = 1;
+          categories.forEach((item) => {
+            ret.id = i;
+            //ret.label = item.category;
+            ret.value = item.category;
+            array.push(ret);
+            i++;
+          });
 
-        let ret = {};
-        let array = [];
-        let i = 1;
-        categories.forEach((item) => {
-          ret.id = i;
-          //ret.label = item.category;
-          ret.value = item.category;
-          array.push(ret);
-          i++;
+          res.json(ret);
+        })
+        .catch((error) => {
+          req.json({
+            error: "Error while getting records"
+          })
         });
 
-        res.json(ret);
-      })
-      .catch((error) => {
-        req.json({
-          error: "Error while getting records"
-        })
-      });
-
-  }),*/
+    }),*/
 
 
   /**
@@ -394,9 +538,12 @@ module.exports = {
   /**
    * Filter page
    */
-  filter: ((req, res) => {
+  filter:
+    ((req, res) => {
 
-  })
+      res.view("/bank/filter")
+
+    })
 };
 
 

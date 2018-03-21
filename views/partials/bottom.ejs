@@ -26,7 +26,7 @@
   <% if(typeof subcat !== 'undefined') {%>
       var subcat = [];
       <% subcat.forEach(function(item){ %>
-      subcat.push('<%= item.subcategory %>')
+      subcat.push('<%= item %>')
       <% }); %>
       $('#subcat .subcat').typeahead({
           hint: true,
@@ -39,11 +39,10 @@
         });
   <% } %>
 
-
   <% if(typeof cat !== 'undefined') {%>
       var cat = [];
       <% cat.forEach(function(item){ %>
-      cat.push('<%= item.category %>')
+      cat.push('<%= item %>')
       <% }); %>
       $('#cat .cat').typeahead({
           hint: true,
