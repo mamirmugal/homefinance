@@ -1,19 +1,75 @@
 <div class="row  mb-3">
     <div class="col-md-1"></div>
-    <div class="col-md-5 text-left">
+    <div class="col-md-3 text-left">
+        <a href="/bank/pagination" class="btn btn-info">Pagination</a>
         <a href="/bank/monthly" class="btn btn-info">Monthly</a>
         <a href="/bank/filter" class="btn btn-info">Filter</a>
     </div>
-    <div class="col-md-5 text-right">
+
+    <div class="col-md-2 text-left">
+        <%= fromDate%>
+    </div>
+    <div class="col-md-2 text-left">
+        <%= toDate%>
+    </div>
+
+    <div class="col-md-3 text-right">
         <a href="/bank/add" class="btn btn-primary">Add Bank details</a>
     </div>
     <div class="col-md-1"></div>
 </div>
 <div class="clear-fix"></div>
+
 <div class="row">
     <div class="col-md-1"></div>
     <div class="col-md-10">
-
+        <table class="table table-striped">
+            <thead class="thead-dark">
+            <tr>
+                <th>Date</th>
+                <th>Title</th>
+                <th>Category</th>
+                <!--<th>Category</th>-->
+                <th>Sub - Category</th>
+                <!--<th>Sub - Category</th>-->
+                <th>Amount Type</th>
+                <th>Amount</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <% let credit = 0%>
+            <% let debit = 0%>
+            <% bankDetails.forEach(function(details){ %>
+            <tr>
+                <td><%= moment(details.dates).format('DD-MM-YYYY') %></td>
+                <td><%= details.title %></td>
+                <td><%= details.category %></td>
+                <!--<td><%= details.slug_category %></td>-->
+                <td><%= details.subcategory %></td>
+                <!--<td><%= details.slug_subcategory %></td>-->
+                <td><%= bankAmountType[details.amount_type] %></td>
+                <td>$ <%= details.amount %></td>
+                <td>
+                    <a class="btn btn-info" href="/bank/edit/<%= details.id %>">Edit</a>
+                    <a class="btn btn-warning" href="delBank(<%= details.id %>)">Delete</a>
+                </td>
+            </tr>
+            <%
+                if(details.amount_type == "subtracted"){
+                  credit += parseInt(details.amount);
+                } else {
+                  debit += parseInt(details.amount);
+                }
+            %>
+            <% }) %>
+            <thead class="thead-dark">
+            <tr>
+                <th colspan="5" class="text-center"> Total</th>
+                <th>$ <%= debit - credit %></th>
+                <th></th>
+            </tr>
+            </thead>
+        </table>
     </div>
     <div class="col-md-1"></div>
 </div>

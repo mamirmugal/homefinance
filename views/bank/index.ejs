@@ -1,6 +1,7 @@
 <div class="row  mb-3">
     <div class="col-md-1"></div>
     <div class="col-md-5 text-left">
+        <a href="/bank/pagination" class="btn btn-info">Pagination</a>
         <a href="/bank/monthly" class="btn btn-info">Monthly</a>
         <a href="/bank/filter" class="btn btn-info">Filter</a>
     </div>
@@ -27,6 +28,8 @@
                 <th>Action</th>
             </tr>
             </thead>
+            <% let credit = 0%>
+            <% let debit = 0%>
             <% bankDetails.forEach(function(details){ %>
             <tr>
                 <td><%= moment(details.dates).format('DD-MM-YYYY') %></td>
@@ -42,31 +45,23 @@
                     <a class="btn btn-warning" href="delBank(<%= details.id %>)">Delete</a>
                 </td>
             </tr>
+            <%
+                if(details.amount_type == "subtracted"){
+                    credit += parseInt(details.amount);
+                } else {
+                    debit += parseInt(details.amount);
+                }
+            %>
             <% }) %>
+            <thead class="thead-dark">
+            <tr>
+                <th colspan="5" class="text-center"> Total</th>
+                <th>$ <%= debit - credit %></th>
+                <th></th>
+            </tr>
+            </thead>
         </table>
     </div>
     <div class="col-md-1"></div>
 </div>
 
-
-<%
-var ii = 1;
-var jj = page + 1;
-var prevEnd = limit * (page - 1);
-var nextStart =limit * page;
-%>
-<div class="row  mt-3 mb-5">
-    <div class="col-md-1"></div>
-    <div class="col-md-5 text-left">
-        <% for ( var i = 1; i < prevEnd; i = i + limit) { %>
-        <a href="/bank?page=<%= ii %>" class="btn btn-info"><%= ii++ %></a>
-        <% } %>
-    </div>
-    <div class="col-md-5 text-right">
-        <% for(let j =  nextStart; j < count ; j = j + limit) { %>
-        <a href="/bank?page=<%= jj %>" class="btn btn-info"><%= jj++ %></a>
-        <% } %>
-    </div>
-    <div class="col-md-1"></div>
-</div>
-<div class="clear-fix"></div>

@@ -2,10 +2,25 @@
 module.exports = {
 
 
+  /**
+   * Setting flash Success message
+   *
+   * @author Muhammad Amir
+   * @param  req
+   * @param  obj
+   */
   setSuccess: (req, obj) => {
     req.session.flashSuccess = obj;
   },
 
+
+  /**
+   * Getting flash success message
+   *
+   * @author  Muhammad Amir
+   * @param   req
+   * @returns {*}
+   */
   getSuccess: (req) => {
     let flashSuccess = req.session.flashSuccess;
     req.session.flashSuccess = undefined;
@@ -13,10 +28,26 @@ module.exports = {
     return flashSuccess;
   },
 
+
+  /**
+   * Setting flash error message
+   *
+   * @author Muhammad Amir
+   * @param  req
+   * @param  obj
+   */
   setError: (req, obj) => {
     req.session.flashError = obj;
   },
 
+
+  /**
+   * Getting flash error message
+   *
+   * @author  Muhammad Amir
+   * @param   req
+   * @returns {*}
+   */
   getError: (req) => {
 
     let flashError = req.session.flashError;
@@ -28,7 +59,9 @@ module.exports = {
   /**
    * This method will get today date
    *
-   * @author Muhammad Amir
+   * @author  Muhammad Amir
+   * @param   format
+   * @returns {*}
    */
   getDateToday: (format = 'd/m/y') => {
 
@@ -63,9 +96,11 @@ module.exports = {
   /**
    * Parsing date according to the application
    *
-   * @author Muhammad Amir
+   * @author  Muhammad Amir
+   * @param   dateString
+   * @returns {Date}
    */
-  parseDate: ((dateString) => {
+  parseDate: (dateString) => {
     let dateArray;
 
     if (dateString.includes("/")) {
@@ -76,14 +111,14 @@ module.exports = {
       dateArray = dateString.split("-");
     }
 
-    return new Date(parseInt(dateArray[2]), parseInt(dateArray[1])-1, parseInt(dateArray[0]));
-  }),
+    return new Date(parseInt(dateArray[2]), parseInt(dateArray[1]) - 1, parseInt(dateArray[0]));
+  },
 
 
   /**
    * These are the field names which will be used to show error messages
    *
-   * @author Muhammad Amir
+   * @author  Muhammad Amir
    * @returns {{dates: string, amount_type: string, category: string, subcategory: string, title: string, descp: string, amount: string}}
    */
   getBankFields: () => {
@@ -98,6 +133,13 @@ module.exports = {
     }
   },
 
+  /**
+   * Checking if he object is empty or not
+   *
+   *
+   * @param   obj
+   * @returns {boolean}
+   */
   isEmpty: (obj) => {
     // null and undefined are "empty"
     if (obj == null) return true;
@@ -115,5 +157,54 @@ module.exports = {
     }
 
     return true;
-  }
+  },
+
+
+  /**
+   * getting the Date range for one months total
+   *
+   * @author  Muhammad Amir
+   * @param   month
+   * @param   year
+   * @returns {*[]}
+   */
+  getToFromDate: (month, year) => {
+
+    var d = new Date();
+    if (typeof month === 'undefined') {
+      month = d.getMonth();
+    }
+    if (typeof year === 'undefined') {
+      year = d.getFullYear();
+    }
+
+    var fromDate;
+    var toDate;
+    if (d.getDate() < 14) {
+      fromDate = new Date(year, (month - 1), 15); // getting 15 of previous month
+      toDate = new Date(year, month, 14); // getting 15th of current month
+    }
+    else {
+      fromDate = new Date(year, month, 15); // getting 15 of current month
+      toDate = new Date(year, (month + 1), 14); // getting 16th of next month
+    }
+
+    return [fromDate, toDate];
+  },
+
+
+  /**
+   * Getting Bank Amount type
+   *
+   * @author  Muhammad Amir
+   * @returns {{subtracted: string, added: string}}
+   */
+  getBankAmountType:()=>{
+    return {
+      'subtracted': "Credited",
+      'added': "Debited",
+    };
+  },
+
+
 };
