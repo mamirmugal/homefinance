@@ -12,6 +12,8 @@ module.exports = {
 
   /**
    * Main index function
+   *
+   * @author Muhammad Amir
    */
   index: ((req, res) => {
 
@@ -40,6 +42,8 @@ module.exports = {
 
   /**
    * Main index function
+   *
+   * @author Muhammad Amir
    */
   pagination: ((req, res) => {
 
@@ -81,6 +85,8 @@ module.exports = {
 
   /**
    * Showing add method
+   *
+   * @author Muhammad Amir
    */
   add: ((req, res) => {
 
@@ -171,6 +177,8 @@ module.exports = {
 
   /**
    * Creating method
+   *
+   * @author Muhammad Amir
    */
   create: ((req, res) => {
 
@@ -204,6 +212,8 @@ module.exports = {
 
   /**
    * Showing edit page
+   *
+   * @author Muhammad Amir
    */
   edit: ((req, res) => {
 
@@ -304,6 +314,8 @@ module.exports = {
 
   /**
    * Update bank transection details
+   *
+   * @author Muhammad Amir
    */
   update: ((req, res) => {
 
@@ -345,6 +357,8 @@ module.exports = {
 
   /**
    * Delete bank transection
+   *
+   * @author Muhammad Amir
    */
   delete: ((req, res) => {
 
@@ -364,18 +378,109 @@ module.exports = {
       })
   }),
 
+
   /**
    * Filter page
+   *
+   * @author Muhammad Amir
    */
   filter: ((req, res) => {
 
-    res.view("/bank/filter")
+    let obj = null;
+    if (req.body && req.body.category_filter) {
+
+      obj = {
+        category: req.body.category_filter
+      }
+
+      if (req.body.subcategory_filter) {
+        obj = {
+          subcategory: req.body.subcategory_filter
+        };
+      }
+    }
+
+
+    // Promise to fix the native mongo command
+    let promise = new Promise((resolve, reject) => {
+
+      Bank.native((err, collection) => {
+
+        // throw error when error
+        if (err)
+          reject(err);
+
+        collection.distinct('category', (err, rows) => {
+
+          // error then throw error
+          if (err)
+            reject(err);
+
+          // if resolved the send to next promise
+          resolve(rows);
+        });
+      });
+
+    });
+
+    promise
+    //   .then((categories) => {
+    //
+    //   return new Promise((resolve, reject) => {
+    //
+    //     Bank.native((err, collection) => {
+    //
+    //       // throw error when error
+    //       if (err)
+    //         reject(err);
+    //
+    //       collection.distinct('subcategory', (err, rows) => {
+    //
+    //         // error then throw error
+    //         if (err)
+    //           reject(err);
+    //
+    //         // if resolved the send to next promise
+    //         resolve([categories, rows]);
+    //       });
+    //     });
+    //
+    //   });
+    //
+    // })
+      .then((cat) => {
+
+        if (obj !== null) {
+          Bank.find(obj)
+            .then((rows) => {
+
+              res.view('bank/filter', {
+                // subcat: subcat,
+                category: cat,
+                rows: rows,
+                moment: moment
+              });
+
+            });
+        }
+        else{
+          res.view('bank/filter', {
+            // subcat: subcat,
+            category: cat,
+            rows: [],
+            moment: moment
+          });
+        }
+      });
+
 
   }),
 
 
   /**
    * monthly page
+   *
+   * @author Muhammad Amir
    */
   monthly: ((req, res) => {
 
@@ -398,6 +503,43 @@ module.exports = {
 
   }),
 
+
+  /**
+   * Getting sub category form bank collections
+   *
+   * @author Muhammad Amir
+   */
+  getSubCat: ((req, res) => {
+    if (!req.body.cat)
+      res.send(500, "Cat id is not set");
+
+    let promise = new Promise((resolve, reject) => {
+
+      Bank.native((err, collection) => {
+
+        // throw error when error
+        if (err)
+          reject(err);
+
+        collection.distinct('subcategory', {category: req.body.cat}, (err, rows) => {
+
+          // error then throw error
+          if (err)
+            reject(err);
+
+          // if resolved the send to next promise
+          resolve(rows);
+        });
+      });
+
+    });
+
+    promise
+      .then((subcateogry) => {
+        res.json(subcateogry);
+      });
+
+  }),
 
 };
 

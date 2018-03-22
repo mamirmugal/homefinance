@@ -33,46 +33,28 @@ jQuery(($) => {
 
   })
 
+  $("#category_filter").change(function () {
+    var val = $(this).val();
 
-  // $("#bank_category").autocomplete({
-  //   source: function (request, response) {
-  //     $.ajax({
-  //       url: "/bank/category",
-  //       // dataType: "jsonp",
-  //       data: {
-  //         term: request.term
-  //       },
-  //       success: function (data) {
-  //         response(data);
-  //       }
-  //     });
-  //   },
-  //   minLength: 2,
-  //   select: function (event, ui) {
-  //     //console.log("Selected: " + ui.item.value + " aka " + ui.item.id);
-  //   }
-  // });
+    $("#subcategory_filter > option").remove();
+    $.ajax({
+      method: "POST",
+      url: "/bank/getSubCat",
+      data: {cat: $(this).val()}
+    })
+      .done(function (msg) {
 
-
-  // $("#bank_subcategory").autocomplete({
-  //   source: function (request, response) {
-  //     $.ajax({
-  //       url: "/bank/subcategory",
-  //       // dataType: "jsonp",
-  //       data: {
-  //         term: request.term
-  //       },
-  //       success: function (data) {
-  //         response(data);
-  //       }
-  //     });
-  //   },
-  //   minLength: 2,
-  //   select: function (event, ui) {
-  //     //console.log("Selected: " + ui.item.value + " aka " + ui.item.id);
-  //   }
-  // });
-
+        $("#subcategory_filter").append($('<option>', {value: "", text: "All"}));
+        $.each(msg, function (index, item) {
+          $("#subcategory_filter").append(
+            $('<option>',{
+                value: item,
+                text: item,
+            })
+          )
+        })
+      });
+  })
 });
 
 function delBank(id) {

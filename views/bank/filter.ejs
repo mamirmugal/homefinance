@@ -10,10 +10,90 @@
     <div class="col-md-1"></div>
 </div>
 <div class="clear-fix"></div>
+<form name="filter_form" id="filter_form" method="post" action="/bank/filter">
+    <div class="row  mb-3">
+        <div class="col-md-2"></div>
+        <div class="col-md-3 text-left">
+
+            <div class="form-group row">
+                <label for="category_filter" class="col-sm-4 col-form-label text-right">Category</label>
+                <div class="col-sm-8">
+                    <select name="category_filter" id="category_filter" class="form-control">
+                        <% category.forEach(function(item){ %>
+                        <option value="<%= item %>"><%= item %></option>
+                        <% }) %>
+                    </select>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-md-3 text-right">
+
+            <div class="form-group row">
+                <label for="subcategory_filter" class="col-sm-4 col-form-label text-right">Sub-Category</label>
+                <div class="col-sm-8">
+                    <select name="subcategory_filter" id="subcategory_filter" class="form-control">
+                    </select>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-md-4">
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+    </div>
+</form>
+<div class="clear-fix"></div>
 <div class="row">
     <div class="col-md-1"></div>
     <div class="col-md-10">
 
+        <table class="table table-striped">
+            <thead class="thead-dark">
+            <tr>
+                <th>Date</th>
+                <th>Title</th>
+                <th>Category</th>
+                <!--<th>Category</th>-->
+                <th>Sub - Category</th>
+                <!--<th>Sub - Category</th>-->
+                <th>Amount Type</th>
+                <th>Amount</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <% let credit = 0 %>
+            <% let debit = 0 %>
+            <% rows.forEach(function(details){ %>
+            <tr>
+                <td><%= moment(details.dates).format('DD-MM-YYYY') %></td>
+                <td><%= details.title %></td>
+                <td><%= details.category %></td>
+                <!--<td><%= details.slug_category %></td>-->
+                <td><%= details.subcategory %></td>
+                <!--<td><%= details.slug_subcategory %></td>-->
+                <td><%= details.amount_type %></td>
+                <td><%= details.amount %></td>
+                <td>
+                    <a class="btn btn-info" href="/bank/edit/<%= details.id %>">Edit</a>
+                    <a class="btn btn-warning" href="delBank(<%= details.id %>)">Delete</a>
+                </td>
+            </tr>
+            <%
+                if (details.amount_type == "subtracted") {
+                    credit += parseInt(details.amount);
+                } else {
+                    debit += parseInt(details.amount);
+                }
+            %>
+            <% }) %>
+            <thead class="thead-dark">
+            <tr>
+                <th colspan="5" class="text-center"> Total</th>
+                <th>$ <%= debit - credit %></th>
+                <th></th>
+            </tr>
+            </thead>
     </div>
     <div class="col-md-1"></div>
 </div>
