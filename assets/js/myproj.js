@@ -13,8 +13,8 @@ jQuery(($) => {
     }
   });
 
-  $('#dates').datepicker({
-    format: 'dd/mm/yyyy',
+  $('#dates, #from_date, #to_date').datepicker({
+    format: 'dd-mm-yyyy',
     uiLibrary: 'bootstrap4',
     // "setDate": new Date(),
     // "autoclose": true
@@ -45,20 +45,32 @@ jQuery(($) => {
       .done(function (msg) {
 
         $("#subcategory_filter").append($('<option>', {value: "", text: "All"}));
+        var options = {};
         $.each(msg, function (index, item) {
+
+          options = {
+            value: item,
+            text: item,
+          };
+
+          if ($('#sub_val').val() == item) {
+            options.selected = "selected";
+          }
+
           $("#subcategory_filter").append(
-            $('<option>',{
-                value: item,
-                text: item,
-            })
-          )
+            $('<option>', options)
+          );
+
         })
       });
-  })
+  });
+
+
+  $("#category_filter").trigger('change');
 });
 
 function delBank(id) {
   if (confirm("Are you sure you want to delete this transection!")) {
-    window.location.herf = "/bank/delete/" + id;
+    window.location = "/bank/delete/" + id;
   }
 }

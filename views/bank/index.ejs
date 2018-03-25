@@ -4,6 +4,8 @@
         <a href="/bank/pagination" class="btn btn-info">Pagination</a>
         <a href="/bank/monthly" class="btn btn-info">Monthly</a>
         <a href="/bank/filter" class="btn btn-info">Filter</a>
+        <a href="/bank/chart" class="btn btn-info">Charts</a>
+        <a href="/bank/weekly" class="btn btn-info">Weekly Charts</a>
     </div>
     <div class="col-md-5 text-right">
         <a href="/bank/add" class="btn btn-primary">Add Bank details</a>
@@ -31,7 +33,7 @@
             <% let credit = 0%>
             <% let debit = 0%>
             <% bankDetails.forEach(function(details){ %>
-            <tr>
+            <tr class="<%=((last != null && last == details.id) ? "bg-warning" : "") %> <%=((last != null && edit == details.id) ? "bg-info" : "") %>">
                 <td><%= moment(details.dates).format('DD-MM-YYYY') %></td>
                 <td><%= details.title %></td>
                 <td><%= details.category %></td>
@@ -42,14 +44,14 @@
                 <td><%= details.amount %></td>
                 <td>
                     <a class="btn btn-info" href="/bank/edit/<%= details.id %>">Edit</a>
-                    <a class="btn btn-warning" href="delBank(<%= details.id %>)">Delete</a>
+                    <a class="btn btn-warning" onclick="delBank('<%= details.id %>')">Delete</a>
                 </td>
             </tr>
             <%
                 if(details.amount_type == "subtracted"){
-                    credit += parseInt(details.amount);
+                    credit += parseFloat(details.amount);
                 } else {
-                    debit += parseInt(details.amount);
+                    debit += parseFloat(details.amount);
                 }
             %>
             <% }) %>

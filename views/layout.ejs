@@ -34,7 +34,8 @@
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link href="https://cdn.jsdelivr.net/npm/gijgo@1.8.2/combined/css/gijgo.min.css" rel="stylesheet" type="text/css"/>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/css/bootstrap-datepicker.css">
+    <link rel="stylesheet"
+          href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/css/bootstrap-datepicker.css">
     <!--STYLES-->
     <link rel="stylesheet" href="/styles/custom.css">
     <link rel="stylesheet" href="/styles/importer.css">
@@ -64,10 +65,10 @@
                         <a class="nav-link" href="/expenses">Expenses</a>
                     </li>
                     <!--<li class="nav-item">-->
-                        <!--<a class="nav-link" href="/category">Category</a>-->
+                    <!--<a class="nav-link" href="/category">Category</a>-->
                     <!--</li>-->
                     <!--<li class="nav-item">-->
-                        <!--<a class="nav-link" href="/subcategory">Sub-Category</a>-->
+                    <!--<a class="nav-link" href="/subcategory">Sub-Category</a>-->
                     <!--</li>-->
                 </ul>
 
@@ -76,58 +77,60 @@
     </header>
     <div class="clearfix" style="height:100px;"></div>
     <%- partial('./partials/flashmessage.ejs') %>
-    <%- body %>
+    <div class="p2">
+        <%- body %>
 
 
-    <!--
-        Client-side Templates
-        ========================
+        <!--
+            Client-side Templates
+            ========================
 
-        HTML templates are important prerequisites of modern, rich client applications.
-        To work their magic, frameworks like Backbone, Angular, Ember, and Knockout require
-        that you load these templates client-side.
+            HTML templates are important prerequisites of modern, rich client applications.
+            To work their magic, frameworks like Backbone, Angular, Ember, and Knockout require
+            that you load these templates client-side.
 
-        By default, your Gruntfile is configured to automatically load and precompile
-        client-side JST templates in your `assets/templates` folder, then
-        include them here automatically (between TEMPLATES and TEMPLATES END).
+            By default, your Gruntfile is configured to automatically load and precompile
+            client-side JST templates in your `assets/templates` folder, then
+            include them here automatically (between TEMPLATES and TEMPLATES END).
 
-        To customize this behavior to fit your needs, just edit `tasks/pipeline.js`.
-        For example, here are a few things you could do:
+            To customize this behavior to fit your needs, just edit `tasks/pipeline.js`.
+            For example, here are a few things you could do:
 
-            + Import templates from other directories
-            + Use a different template engine (handlebars, jade, dust, etc.)
-            + Internationalize your client-side templates using a server-side
-              stringfile before they're served.
-    -->
+                + Import templates from other directories
+                + Use a different template engine (handlebars, jade, dust, etc.)
+                + Internationalize your client-side templates using a server-side
+                  stringfile before they're served.
+        -->
 
-    <!--TEMPLATES-->
-    
-    <!--TEMPLATES END-->
+        <!--TEMPLATES-->
+        
+        <!--TEMPLATES END-->
 
 
-    <!--
+        <!--
 
-      Client-side Javascript
-      ========================
+          Client-side Javascript
+          ========================
 
-      You can always bring in JS files manually with `script` tags, or asynchronously
-      on the client using a solution like AMD (RequireJS).  Or, if you like, you can
-      take advantage of Sails' conventional asset pipeline (boilerplate Gruntfile).
+          You can always bring in JS files manually with `script` tags, or asynchronously
+          on the client using a solution like AMD (RequireJS).  Or, if you like, you can
+          take advantage of Sails' conventional asset pipeline (boilerplate Gruntfile).
 
-      By default, files in your `assets/js` folder are included here
-      automatically (between SCRIPTS and SCRIPTS END).  Both JavaScript (.js) and
-      CoffeeScript (.coffee) are supported. In production, your scripts will be minified
-      and concatenated into a single file.
+          By default, files in your `assets/js` folder are included here
+          automatically (between SCRIPTS and SCRIPTS END).  Both JavaScript (.js) and
+          CoffeeScript (.coffee) are supported. In production, your scripts will be minified
+          and concatenated into a single file.
 
-      To customize any part of the built-in behavior, just edit `tasks/pipeline.js`.
-      For example, here are a few things you could do:
+          To customize any part of the built-in behavior, just edit `tasks/pipeline.js`.
+          For example, here are a few things you could do:
 
-          + Change the order of your scripts
-          + Import scripts from other directories
-          + Use a different preprocessor, like TypeScript
+              + Change the order of your scripts
+              + Import scripts from other directories
+              + Use a different preprocessor, like TypeScript
 
-    -->
+        -->
 
+    </div>
 </div>
 
 <!-- Optional JavaScript -->
@@ -142,8 +145,12 @@
         integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
         crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/gijgo@1.8.2/combined/js/gijgo.min.js" type="text/javascript"></script>
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/js/bootstrap-datepicker.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.7.1/js/bootstrap-datepicker.js" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.js" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js" type="text/javascript"></script>
 <!--SCRIPTS-->
 <script src="/js/dependencies/sails.io.js"></script>
 <script src="/js/bloodhound.min.js"></script>

@@ -1,0 +1,88 @@
+<div class="d-flex flex-row justify-content-around align-self-stretch">
+    <div class="p1 mr-auto">
+        <a href="/bank/monthly" class="btn btn-info">Monthly</a>
+        <a href="/bank/filter" class="btn btn-info">Filter</a>
+        <a href="/bank/chart" class="btn btn-info">Charts</a>
+    </div>
+    <div class="p1">
+        <a href="/bank/add" class="btn btn-primary">Add Bank details</a>
+    </div>
+</div>
+
+
+<form name="filter_form" id="filter_form" method="get" action="/bank/filter">
+    <div class="d-flex mt-3 flex-row justify-content-around align-self-stretch  mr-auto">
+        <div class="p1">
+
+            <div class="form-group row">
+                <label for="from_date" class="col-sm-12 col-form-label  text-center">From Date</label>
+                <div class="col-sm-12">
+                    <input type="text" readonly class="form-control datepicker" id="from_date" name="from_date"
+                           value="<%= fromDate %>">
+                </div>
+            </div>
+
+        </div>
+        <div class="p1">
+            <div class="form-group row">
+                <label for="to_date" class="col-sm-12 col-form-label  text-center">To Date</label>
+                <div class="col-sm-12">
+                    <input type="text" readonly class="form-control datepicker" id="to_date" name="to_date"
+                           value="<%= toDate %>">
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+    <div class="d-flex mt-2 flex-row justify-content-around align-self-stretch  mr-auto">
+        <div class="p1">
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+    </div>
+
+
+</form>
+
+<div class="d-flex mt-2 mb-5 flex-row justify-content-around align-self-stretch  mr-auto">
+
+    <div class="col-md-6">
+        <div class="d-flex">
+            <div id="canvas-holder" style="width:100%">
+                <canvas id="chart-area"></canvas>
+            </div>
+        </div>
+        <div class="d-flex justify-content-around mt-5">
+            <!--<button id="addDataset" class="btn btn-primary">Add Dataset</button>-->
+            <!--<button id="removeDataset" class="btn btn-primary">Remove Dataset</button>-->
+            <!--<button id="addData" class="btn btn-primary">Add Data</button>-->
+            <!--<button id="removeData" class="btn btn-primary">Remove Data</button>-->
+        </div>
+    </div>
+    <div class="col-md-6">
+
+        <div class="d-flex">
+            <div id="canvas-holder" style="width:100%">
+                <canvas id="chart-area-subcat"></canvas>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<div class="d-flex mt-2 mb-5 flex-row justify-content-around align-self-stretch  mr-auto">
+
+    <div class="col-md-6">
+        <div class="d-flex">
+            <div id="canvas-holder" style="width:100%">
+                <canvas id="chart-area-title"></canvas>
+            </div>
+        </div>
+
+    </div>
+    <div class="col-md-6">
+    </div>
+
+</div>

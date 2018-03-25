@@ -23,11 +23,14 @@ module.exports = {
 
         // then applying pagination
         Bank.find({})
+          .sort({dates: 'ASC'})
           .then((bankDetails) => {
 
             res.view('bank/index', {
               bankDetails: bankDetails,
               moment: moment,
+              last: (typeof req.session.last != 'undefined') ? req.session.last : null,
+              edit: (typeof req.session.edit != 'undefined') ? req.session.edit : null,
             });
 
           })
@@ -63,12 +66,14 @@ module.exports = {
         // then applying pagination
         Bank.find({})
           .paginate({page: page, limit: limit})
+          .sort({dates: 'ASC'})
           .then((bankDetails) => {
 
             res.view('bank/pagination', {
               bankDetails: bankDetails,
               moment: moment,
               count: count,
+              last: (typeof req.session.last != 'undefined') ? req.session.last : null,
               page: parseInt(page),
               limit: parseInt(limit)
             });
@@ -193,10 +198,19 @@ module.exports = {
       descp: req.body.descp,
       amount_type: req.body.amount_type,
     })
-      .then((req) => {
-        res.redirect('bank');
+      .then((reqs) => {
+
+        // Adding last added row to the session
+        req.session.edit = reqs.id;
+
+        if (typeof req.body.add_another != 'undefined')
+          res.redirect('bank/add');
+        else
+          res.redirect('bank');
       })
       .catch((error) => {
+
+        console.log(error);
 
         // Adding fields to session
         req.session.bank = req.body;
@@ -337,7 +351,13 @@ module.exports = {
       descp: req.body.descp,
       amount_type: req.body.amount_type,
     })
-      .then((req) => {
+      .then((reqs) => {
+
+        let edit = reqs.pop();
+
+        // Adding edit added row to the session
+        req.session.edit = edit.id;
+
         res.redirect('bank');
       })
       .catch((error) => {
@@ -386,19 +406,42 @@ module.exports = {
    */
   filter: ((req, res) => {
 
-    let obj = null;
-    if (req.body && req.body.category_filter) {
+    let obj = {};
+    let catValue = null;
+    let subCatValue = null;
+    let dates = myProjService.getToFromDate();
 
-      obj = {
-        category: req.body.category_filter
-      }
+    let tDate = dates.pop();
+    let fDate = dates.pop();
 
-      if (req.body.subcategory_filter) {
-        obj = {
-          subcategory: req.body.subcategory_filter
-        };
+    if (req.param('to_date') && req.param('from_date')) {
+      tDate = myProjService.getDateFromString(req.param('to_date'));
+      fDate = myProjService.getDateFromString(req.param('from_date'));
+    }
+
+    let toDate = myProjService.formatFromDate(tDate);
+    let fromDate = myProjService.formatFromDate(fDate);
+
+    /**
+     * getting category if sub-category is set then
+     * select only subcategory
+     * otherwise return empty object
+     */
+    if (req.param('category_filter')) {
+
+      obj.category = req.param('category_filter');
+
+      catValue = req.param('category_filter');
+
+      if (req.param('subcategory_filter')) {
+        obj.subcategory = req.param('subcategory_filter');
+
+        subCatValue = req.param('subcategory_filter');
       }
     }
+
+    // add date range to find object for mongodb
+    obj.dates = {"$gte": fDate, "$lte": tDate};
 
 
     // Promise to fix the native mongo command
@@ -423,56 +466,116 @@ module.exports = {
 
     });
 
+
+    // Promise returned from getting cat or subcat
     promise
-    //   .then((categories) => {
-    //
-    //   return new Promise((resolve, reject) => {
-    //
-    //     Bank.native((err, collection) => {
-    //
-    //       // throw error when error
-    //       if (err)
-    //         reject(err);
-    //
-    //       collection.distinct('subcategory', (err, rows) => {
-    //
-    //         // error then throw error
-    //         if (err)
-    //           reject(err);
-    //
-    //         // if resolved the send to next promise
-    //         resolve([categories, rows]);
-    //       });
-    //     });
-    //
-    //   });
-    //
-    // })
       .then((cat) => {
 
         if (obj !== null) {
           Bank.find(obj)
+            .sort({dates: 'ASC'})
             .then((rows) => {
 
               res.view('bank/filter', {
-                // subcat: subcat,
                 category: cat,
+                catValue: catValue,
+                subCatValue: subCatValue,
                 rows: rows,
+                toDate: toDate,
+                fromDate: fromDate,
                 moment: moment
               });
 
             });
         }
-        else{
+        else {
           res.view('bank/filter', {
-            // subcat: subcat,
             category: cat,
+            catValue: catValue,
+            subCatValue: subCatValue,
+            toDate: toDate,
+            fromDate: fromDate,
             rows: [],
             moment: moment
           });
         }
       });
 
+
+  }),
+
+
+  /**
+   * Chart page
+   *
+   * @author Muhammad Amir
+   */
+  chart: ((req, res) => {
+
+    let dates = myProjService.getToFromDate();
+
+    let tDate = dates.pop();
+    let fDate = dates.pop();
+
+    if (req.param('to_date') && req.param('from_date')) {
+      tDate = myProjService.getDateFromString(req.param('to_date'));
+      fDate = myProjService.getDateFromString(req.param('from_date'));
+    }
+
+
+    // Promise to fix the native mongo command
+    let promise = new Promise((resolve, reject) => {
+
+      Bank.native((err, collection) => {
+
+        // throw error when error
+        if (err)
+          reject(err);
+
+        collection.aggregate([{
+          $match: {
+            $and: [
+              {dates: {$gte: fDate, $lte: tDate}},
+              {amount_type: 'subtracted'}
+            ]
+          }
+        },
+          {
+            $group: {_id: '$category', sum: {$sum: "$amount"}}
+          }
+        ])
+
+          .toArray((err, rows) => {
+
+            // error then throw error
+            if (err)
+              reject(err);
+
+            // if resolved the send to next promise
+            resolve(rows);
+          });
+
+      });
+
+    });
+
+    let toDate = myProjService.formatFromDate(tDate);
+    let fromDate = myProjService.formatFromDate(fDate);
+
+    // Promise returned from getting cat or subcat
+    promise
+      .then((cat) => {
+
+          res.view('bank/chart', {
+            chart_filter: cat,
+            toDate: toDate,
+            fromDate: fromDate,
+          });
+
+      })
+      .catch((error) => {
+        console.log(error)
+      })
 
   }),
 
@@ -541,6 +644,185 @@ module.exports = {
 
   }),
 
+
+  /**
+   * Getting sub category form bank collections
+   *
+   * @author Muhammad Amir
+   */
+  getSubCatSum: ((req, res) => {
+    if (!req.param('cat'))
+      res.send(500, "Cat id is not set");
+
+    let dates = myProjService.getToFromDate();
+
+    let tDate = dates.pop();
+    let fDate = dates.pop();
+
+    if (req.param('to_date') && req.param('from_date')) {
+      tDate = myProjService.getDateFromString(req.param('to_date'));
+      fDate = myProjService.getDateFromString(req.param('from_date'));
+    }
+
+    // Promise to fix the native mongo command
+    let promise = new Promise((resolve, reject) => {
+
+      Bank.native((err, collection) => {
+
+        // throw error when error
+        if (err)
+          reject(err);
+
+        collection.aggregate([{
+          $match: {
+            $and: [
+              {dates: {$gte: fDate, $lte: tDate}},
+              {category: req.param('cat')},
+              {amount_type: 'subtracted'}
+            ]
+          }
+        },
+          {
+            $group: {_id: '$subcategory', sum: {$sum: "$amount"}}
+          }
+        ])
+
+          .toArray((err, rows) => {
+
+            // error then throw error
+            if (err)
+              reject(err);
+
+            // if resolved the send to next promise
+            resolve(rows);
+          });
+
+      });
+
+    });
+
+
+    // Promise returned from getting cat or subcat
+    promise
+      .then((cat) => {
+        res.json(cat)
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+
+  }),
+
+
+  /**
+   * Getting title form bank collections
+   *
+   * @author Muhammad Amir
+   */
+  getTitleSum: ((req, res) => {
+    if (!req.param('subcat') && !req.param('cat'))
+      res.send(500, "subCat id is not set");
+
+    let dates = myProjService.getToFromDate();
+
+    let tDate = dates.pop();
+    let fDate = dates.pop();
+
+    if (req.param('to_date') && req.param('from_date')) {
+      tDate = myProjService.getDateFromString(req.param('to_date'));
+      fDate = myProjService.getDateFromString(req.param('from_date'));
+    }
+
+    // Promise to fix the native mongo command
+    let promise = new Promise((resolve, reject) => {
+
+      Bank.native((err, collection) => {
+
+        // throw error when error
+        if (err)
+          reject(err);
+
+        collection.aggregate([{
+          $match: {
+            $and: [
+              {dates: {$gte: fDate, $lte: tDate}},
+              {category: req.param('cat')},
+              {subcategory: req.param('subcat')},
+              {amount_type: 'subtracted'}
+            ]
+          }
+        },
+          {
+            $group: {_id: '$title', sum: {$sum: "$amount"}}
+          }
+        ])
+
+          .toArray((err, rows) => {
+
+            // error then throw error
+            if (err)
+              reject(err);
+
+            // if resolved the send to next promise
+            resolve(rows);
+          });
+
+      });
+
+    });
+
+
+    // Promise returned from getting cat or subcat
+    promise
+      .then((title) => {
+        res.json(title)
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+
+  }),
+
+
+  weekly: ((req, res)=>{
+
+    let dates = myProjService.getToFromDate();
+
+    let tDate = dates.pop();
+    let fDate = dates.pop();
+
+    // console.log(fDate)
+    // console.log(tDate)
+
+
+
+    if (req.param('to_date') && req.param('from_date')) {
+      tDate = myProjService.getDateFromString(req.param('to_date'));
+      fDate = myProjService.getDateFromString(req.param('from_date'));
+    }
+
+
+    // var d = new Date("2018-3-1");
+    // d.setDate(d.getDate() - 2);
+    // console.log(d.toString());
+
+
+    let toDate = myProjService.formatFromDate(tDate);
+    let fromDate = myProjService.formatFromDate(fDate);
+
+    // myProjService.getFirstAndLastDayOfTheWeek(toDate)
+    myProjService.getFirstAndLastDayOfTheWeek("1-03-2018")
+    myProjService.getFirstAndLastDayOfTheWeek("11-03-2018")
+    myProjService.getFirstAndLastDayOfTheWeek("25-03-2018")
+    myProjService.getFirstAndLastDayOfTheWeek("16-03-2018")
+    myProjService.getFirstAndLastDayOfTheWeek("28-03-2018")
+
+    res.view('bank/weekly',{
+      toDate: toDate,
+      fromDate: fromDate,
+    });
+
+  }),
 };
 
 

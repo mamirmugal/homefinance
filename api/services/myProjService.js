@@ -56,6 +56,7 @@ module.exports = {
     return flashError;
   },
 
+
   /**
    * This method will get today date
    *
@@ -63,7 +64,7 @@ module.exports = {
    * @param   format
    * @returns {*}
    */
-  getDateToday: (format = 'd/m/y') => {
+  getDateToday: (format = 'd-m-y') => {
 
     let d = (new Date);
 
@@ -85,6 +86,10 @@ module.exports = {
 
       case 'd/m/y':
         ret = dateArray[2] + "/" + dateArray[1] + "/" + dateArray[0];
+        break;
+
+      case 'd-m-y':
+        ret = dateArray[2] + "-" + dateArray[1] + "-" + dateArray[0];
         break;
 
     }
@@ -199,11 +204,92 @@ module.exports = {
    * @author  Muhammad Amir
    * @returns {{subtracted: string, added: string}}
    */
-  getBankAmountType:()=>{
+  getBankAmountType: () => {
     return {
       'subtracted': "Credited",
       'added': "Debited",
     };
+  },
+
+
+  /**
+   * This method will get today date
+   *
+   * @author  Muhammad Amir
+   * @param   format
+   * @returns {*}
+   */
+  formatFromDate: (d, format = 'd-m-y') => {
+
+    // console.log(d.toLocaleString());       // -> date and time
+    // console.log(d.toLocaleDateString());   // -> date
+    // console.log(d.toLocaleTimeString());   // -> time
+
+    let dateArray = d.toLocaleDateString().split("-");
+    let ret;
+    switch (format) {
+
+      case 'y-m-d':
+        ret = dateArray[0] + "-" + dateArray[1] + "-" + dateArray[2];
+        break;
+
+      case 'y/m/d':
+        ret = dateArray[0] + "/" + dateArray[1] + "/" + dateArray[2];
+        break;
+
+      case 'd/m/y':
+        ret = dateArray[2] + "/" + dateArray[1] + "/" + dateArray[0];
+        break;
+
+      case 'd-m-y':
+        ret = dateArray[2] + "-" + dateArray[1] + "-" + dateArray[0];
+        break;
+
+    }
+
+    return ret;
+  },
+
+
+  /**
+   * Convert Date from string to date object
+   *
+   * @author Muhammad
+   * @param  date
+   */
+  getDateFromString: (date) => {
+
+    let arr = date.split("-")
+    return new Date(arr[2], parseInt(arr[1]) - 1, arr[0]);
+
+  },
+
+
+  getFirstAndLastDayOfTheWeek: (date) => {
+
+    // var curr = myProjService.getDateFromString(date);
+    var curr = myProjService.getDateFromString(date);
+    var first = myProjService.getDateFromString(date);
+    var last = myProjService.getDateFromString(date);
+    console.log(curr)
+    // console.log(curr.getDate())
+    // console.log(curr.getDay())
+
+    first.setDate(first.getDate() - first.getDay());
+    last.setDate(first.getDate() + (6 - first.getDay()));
+
+    // var curr = new Date("2018-02-27");
+    // day = curr.getDay();
+    // firstday = new Date(curr.getTime() - 60*60* day*1000); //will return firstday (ie sunday) of the week
+    // lastday = new Date(curr.getTime() + 60 * 60 *24 * 5 * 1000);
+
+    console.log('firstday')
+    console.log(first)
+    console.log(last)
+
+    console.log("====")
+
+    return [first, last];
   },
 
 
