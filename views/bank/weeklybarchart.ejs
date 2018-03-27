@@ -1,7 +1,7 @@
 <%- partial('./header.ejs') %>
 
 
-<form name="filter_form" id="filter_form" method="get" action="/bank/filter">
+<form name="filter_form" id="filter_form" method="get" action="/bank/weeklybar">
     <div class="d-flex mt-3 flex-row justify-content-around align-self-stretch  mr-auto">
         <div class="p1">
 
@@ -36,44 +36,22 @@
 
 </form>
 
+
+
 <div class="d-flex mt-2 mb-5 flex-row justify-content-around align-self-stretch  mr-auto">
 
-    <div class="col-md-6">
-        <div class="d-flex">
-            <div id="canvas-holder" style="width:100%">
-                <canvas id="chart-area"></canvas>
-            </div>
-        </div>
-        <div class="d-flex justify-content-around mt-5">
-            <!--<button id="addDataset" class="btn btn-primary">Add Dataset</button>-->
-            <!--<button id="removeDataset" class="btn btn-primary">Remove Dataset</button>-->
-            <!--<button id="addData" class="btn btn-primary">Add Data</button>-->
-            <!--<button id="removeData" class="btn btn-primary">Remove Data</button>-->
-        </div>
+    <div class="col-md-1">
     </div>
-    <div class="col-md-6">
-
+    <div class="col-md-10">
         <div class="d-flex">
-            <div id="canvas-holder" style="width:100%">
-                <canvas id="chart-area-subcat"></canvas>
+            <div id="canvas-holder" style="width:70%">
+                <canvas id="bar-chart-area"></canvas>
             </div>
         </div>
 
+    </div>
+    <div class="col-md-1">
     </div>
 
 </div>
 
-<div class="d-flex mt-2 mb-5 flex-row justify-content-around align-self-stretch  mr-auto">
-
-    <div class="col-md-6">
-        <div class="d-flex">
-            <div id="canvas-holder" style="width:100%">
-                <canvas id="chart-area-title"></canvas>
-            </div>
-        </div>
-
-    </div>
-    <div class="col-md-6">
-    </div>
-
-</div>

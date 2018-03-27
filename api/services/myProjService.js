@@ -265,29 +265,26 @@ module.exports = {
   },
 
 
+  /**
+   * Getting the start and the end date of the week
+   *
+   * @author  Muhammad Amir
+   * @param   date
+   * @returns {*[]}
+   */
   getFirstAndLastDayOfTheWeek: (date) => {
 
-    // var curr = myProjService.getDateFromString(date);
-    var curr = myProjService.getDateFromString(date);
-    var first = myProjService.getDateFromString(date);
-    var last = myProjService.getDateFromString(date);
-    console.log(curr)
-    // console.log(curr.getDate())
-    // console.log(curr.getDay())
+    var first = new Date(date.getTime());
+    var last = new Date(date.getTime());
 
-    first.setDate(first.getDate() - first.getDay());
-    last.setDate(first.getDate() + (6 - first.getDay()));
+    // Getting first day of the week
+    if (first.getDay() > 0)
+      first.setDate(first.getDate() - (first.getDay() - 1));
+    else
+      first.setDate(first.getDate());
 
-    // var curr = new Date("2018-02-27");
-    // day = curr.getDay();
-    // firstday = new Date(curr.getTime() - 60*60* day*1000); //will return firstday (ie sunday) of the week
-    // lastday = new Date(curr.getTime() + 60 * 60 *24 * 5 * 1000);
-
-    console.log('firstday')
-    console.log(first)
-    console.log(last)
-
-    console.log("====")
+    // Getting last day of the week
+    last.setDate(first.getDate() + (7 - first.getDay()));
 
     return [first, last];
   },

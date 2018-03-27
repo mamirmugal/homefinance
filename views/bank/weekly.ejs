@@ -1,16 +1,7 @@
-<div class="d-flex flex-row justify-content-around align-self-stretch">
-    <div class="p1 mr-auto">
-        <a href="/bank/monthly" class="btn btn-info">Monthly</a>
-        <a href="/bank/filter" class="btn btn-info">Filter</a>
-        <a href="/bank/chart" class="btn btn-info">Charts</a>
-    </div>
-    <div class="p1">
-        <a href="/bank/add" class="btn btn-primary">Add Bank details</a>
-    </div>
-</div>
+<%- partial('./header.ejs') %>
 
 
-<form name="filter_form" id="filter_form" method="get" action="/bank/filter">
+<form name="filter_form" id="filter_form" method="get" action="/bank/weekly">
     <div class="d-flex mt-3 flex-row justify-content-around align-self-stretch  mr-auto">
         <div class="p1">
 
@@ -44,3 +35,25 @@
 
 
 </form>
+
+<% arrWeekly.forEach(function (item, index){ %>
+
+<div class="d-flex mt-2 mb-5 flex-row justify-content-around align-self-stretch  mr-auto">
+
+    <div class="col-md-4">
+        <div class="d-flex">
+            <div id="canvas-holder" style="width:100%">
+                <canvas id="chart-area-<%=index%>"></canvas>
+            </div>
+        </div>
+
+    </div>
+    <div class="col-md-4">
+    </div>
+
+    <div class="col-md-4">
+    </div>
+
+</div>
+
+<% }) %>

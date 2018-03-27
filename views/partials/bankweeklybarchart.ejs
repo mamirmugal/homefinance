@@ -1,0 +1,125 @@
+<script>
+
+
+  /**
+   * Labels will be weekly date
+   *
+   * dataset will be categories
+   *
+   * get category value by week
+   *
+   * get ajax call to first week cat values, put them in multiple array
+   *
+   * @type {{labels: string[], datasets: *[]}}
+   */
+
+  var count = 0;
+  <% if(typeof arrWeeklyBar != 'undefined'){ %>
+  <% arrWeeklyBar.forEach(function(item, index){ %>
+  count += 1;
+  getWeeklyBarCat('<%= item[0] %>', '<%= item[1] %>', <%= index %>)
+  <% }) %>
+  <% } %>
+
+  var globalTitle = [];
+  var obj = {};
+
+  /**
+   * Calling weekly bar chart
+   * @param from_date
+   * @param to_date
+   * @param i
+   */
+  function getWeeklyBarCat(from_date, to_date, i) {
+
+    // Converting string date to object date
+    var from = new Date(from_date);
+    var to = new Date(to_date);
+
+    // breaking down date to send by ajax
+    var f = from.getDate() + "-" + (from.getMonth() + 1) + "-" + from.getFullYear();
+    var t = to.getDate() + "-" + (to.getMonth() + 1) + "-" + to.getFullYear();
+
+
+    $.ajax({
+      method: "get",
+      url: "/bank/getWeeklyBarCatSum",
+      data: {
+        from_date: f,
+        to_date: t,
+        i: i,
+      }
+    })
+      .done(function (msg) {
+
+        // Pushing Date for labels for bar chart
+        globalTitle.push(from.getDate() + "-" + (from.getMonth() + 1) + " " + to.getDate() + "-" + (to.getMonth() + 1));
+
+        // creating a global object when calling ajax call
+        // multiple ajax calls are made and they need to
+        // added to object so that they can be used in bar
+        // canvas creation
+        for (var m in msg) {
+
+          // JS dosnt allow object.object to be created
+          // so to assign new properties we first need to
+          // make the root as object before adding new properties
+          // this will also ensure that it will happen on the first time
+          if (typeof obj[msg[m]._id] == 'undefined') {
+            obj[msg[m]._id] = {};
+            obj[msg[m]._id].data = [];
+            obj[msg[m]._id].label = msg[m]._id;
+            obj[msg[m]._id].backgroundColor = color[getRandomInt(0, color.length)];
+            obj[msg[m]._id].borderColor = color[getRandomInt(0, color.length)];
+            obj[msg[m]._id].borderWidth = 1;
+          }
+
+          // adding all the sum values to data object
+          obj[msg[m]._id].data.push(msg[m].sum);
+        }
+
+        // Decreasing count and when it is zero
+        // initialize canvas bar chart
+        count--;
+        if (count == 0) {
+
+          // We are assigning this to new object
+          // because the obj is object not array
+          // we are pushing data to array for the
+          //  chart.js to work
+          var endDataSet = [];
+          for(var x in obj){
+            endDataSet.push(obj[x]);
+            console.log(endDataSet)
+          }
+
+          // Init Barchar object
+          var barChartData = {
+            labels: globalTitle,
+            datasets: endDataSet
+          };
+
+          var ctx = document.getElementById('bar-chart-area').getContext('2d');
+          window.myBar = new Chart(ctx, {
+            type: 'bar',
+            data: barChartData,
+            options: {
+              responsive: true,
+              legend: {
+                position: 'top',
+              },
+              title: {
+                display: true,
+                text: 'Weekly Bar Chart'
+              }
+            }
+          });
+
+        }
+      });
+
+  }
+
+
+
+</script>

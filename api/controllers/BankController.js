@@ -566,11 +566,11 @@ module.exports = {
     promise
       .then((cat) => {
 
-          res.view('bank/chart', {
-            chart_filter: cat,
-            toDate: toDate,
-            fromDate: fromDate,
-          });
+        res.view('bank/chart', {
+          chart_filter: cat,
+          toDate: toDate,
+          fromDate: fromDate,
+        });
 
       })
       .catch((error) => {
@@ -784,17 +784,156 @@ module.exports = {
   }),
 
 
-  weekly: ((req, res)=>{
+  /**
+   * this will weekly date form monthly date
+   * display week by week
+   *
+   * @author Muhammad Amir
+   */
+  weekly: ((req, res) => {
 
     let dates = myProjService.getToFromDate();
 
     let tDate = dates.pop();
     let fDate = dates.pop();
 
-    // console.log(fDate)
-    // console.log(tDate)
+    if (req.param('to_date') && req.param('from_date')) {
+      tDate = myProjService.getDateFromString(req.param('to_date'));
+      fDate = myProjService.getDateFromString(req.param('from_date'));
+    }
+
+    // Getting the range of dates and pushing them into array
+    let newDate = new Date();
+    newDate.setDate(fDate.getDate())
+    var arr = [];
+    while (newDate < tDate) {
+      newDate.setDate(newDate.getDate() + 7)
+      arr.push(myProjService.getFirstAndLastDayOfTheWeek(newDate));
+    }
+
+    let toDate = myProjService.formatFromDate(tDate);
+    let fromDate = myProjService.formatFromDate(fDate);
+
+    res.view('bank/weekly', {
+      toDate: toDate,
+      fromDate: fromDate,
+      arrWeekly: arr,
+    });
+
+  }),
 
 
+  /**
+   * Getting sub category form bank collections
+   *
+   * @author Muhammad Amir
+   */
+  getWeeklyCatSum: ((req, res) => {
+
+    let dates = myProjService.getToFromDate();
+
+    let tDate = dates.pop();
+    let fDate = dates.pop();
+
+    if (req.param('to_date') && req.param('from_date')) {
+      tDate = myProjService.getDateFromString(req.param('to_date'));
+      fDate = myProjService.getDateFromString(req.param('from_date'));
+    }
+
+    // Promise to fix the native mongo command
+    let promise = new Promise((resolve, reject) => {
+
+      Bank.native((err, collection) => {
+
+        // throw error when error
+        if (err)
+          reject(err);
+
+        collection.aggregate([{
+          $match: {
+            $and: [
+              {dates: {$gte: fDate, $lte: tDate}},
+              {amount_type: 'subtracted'}
+            ]
+          }
+        },
+          {
+            $group: {_id: '$category', sum: {$sum: "$amount"}}
+          }
+        ])
+
+          .toArray((err, rows) => {
+
+            // error then throw error
+            if (err)
+              reject(err);
+
+            // if resolved the send to next promise
+            resolve(rows);
+          });
+
+      });
+
+    });
+
+
+    // Promise returned from getting cat or subcat
+    promise
+      .then((cat) => {
+        res.json(cat)
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+
+  }),
+
+
+  /**
+   * this will weekly date form monthly date
+   * display week by week
+   *
+   * @author Muhammad Amir
+   */
+  weeklybar: ((req, res) => {
+
+    let dates = myProjService.getToFromDate();
+
+    let tDate = dates.pop();
+    let fDate = dates.pop();
+
+    if (req.param('to_date') && req.param('from_date')) {
+      tDate = myProjService.getDateFromString(req.param('to_date'));
+      fDate = myProjService.getDateFromString(req.param('from_date'));
+    }
+
+    // Getting the range of dates and pushing them into array
+    let newDate = new Date();
+    newDate.setDate(fDate.getDate())
+    var arr = [];
+    while (newDate < tDate) {
+      newDate.setDate(newDate.getDate() + 7)
+      arr.push(myProjService.getFirstAndLastDayOfTheWeek(newDate));
+    }
+
+    let toDate = myProjService.formatFromDate(tDate);
+    let fromDate = myProjService.formatFromDate(fDate);
+
+    res.view('bank/weeklybarchart', {
+      toDate: toDate.toLocaleString(),
+      fromDate: fromDate.toLocaleString(),
+      arrWeeklyBar: arr,
+    });
+
+  }),
+
+
+  getWeeklyBarCatSum: ((req, res) => {
+
+    let dates = myProjService.getToFromDate();
+
+    let tDate = dates.pop();
+    let fDate = dates.pop();
 
     if (req.param('to_date') && req.param('from_date')) {
       tDate = myProjService.getDateFromString(req.param('to_date'));
@@ -802,25 +941,51 @@ module.exports = {
     }
 
 
-    // var d = new Date("2018-3-1");
-    // d.setDate(d.getDate() - 2);
-    // console.log(d.toString());
+    // Promise to fix the native mongo command
+    let promise = new Promise((resolve, reject) => {
 
+      Bank.native((err, collection) => {
 
-    let toDate = myProjService.formatFromDate(tDate);
-    let fromDate = myProjService.formatFromDate(fDate);
+        // throw error when error
+        if (err)
+          reject(err);
 
-    // myProjService.getFirstAndLastDayOfTheWeek(toDate)
-    myProjService.getFirstAndLastDayOfTheWeek("1-03-2018")
-    myProjService.getFirstAndLastDayOfTheWeek("11-03-2018")
-    myProjService.getFirstAndLastDayOfTheWeek("25-03-2018")
-    myProjService.getFirstAndLastDayOfTheWeek("16-03-2018")
-    myProjService.getFirstAndLastDayOfTheWeek("28-03-2018")
+        collection.aggregate([{
+          $match: {
+            $and: [
+              {dates: {$gte: fDate, $lte: tDate}},
+              {amount_type: 'subtracted'}
+            ]
+          }
+        },
+          {
+            $group: {_id: '$category', sum: {$sum: "$amount"}}
+          }
+        ])
 
-    res.view('bank/weekly',{
-      toDate: toDate,
-      fromDate: fromDate,
+          .toArray((err, rows) => {
+
+            // error then throw error
+            if (err)
+              reject(err);
+
+            // if resolved the send to next promise
+            resolve(rows);
+          });
+
+      });
+
     });
+
+
+    // Promise returned from getting cat or subcat
+    promise
+      .then((cat) => {
+        res.json(cat)
+      })
+      .catch((error) => {
+        console.log(error)
+      })
 
   }),
 };

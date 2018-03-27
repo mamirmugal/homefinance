@@ -1,14 +1,4 @@
-<div class="d-flex flex-row justify-content-around align-self-stretch">
-    <div class="p1 mr-auto">
-        <a href="/bank/monthly" class="btn btn-info">Monthly</a>
-        <a href="/bank/filter" class="btn btn-info">Filter</a>
-        <a href="/bank/chart" class="btn btn-info">Charts</a>
-        <a href="/bank/weekly" class="btn btn-info">Weekly Charts</a>
-    </div>
-    <div class="p1">
-        <a href="/bank/add" class="btn btn-primary">Add Bank details</a>
-    </div>
-</div>
+<%- partial('./header.ejs') %>
 
 
 <form name="filter_form" id="filter_form" method="get" action="/bank/filter">
