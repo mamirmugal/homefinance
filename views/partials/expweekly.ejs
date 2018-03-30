@@ -1,18 +1,18 @@
 <script>
 
 
-    <% if(typeof arrWeekly != 'undefined'){ %>
+    <% if(typeof arrExpWeekly != 'undefined'){ %>
 
-    <% arrWeekly.forEach(function(item, index){ %>
+    <% arrExpWeekly.forEach(function(item, index){ %>
 
-    getWeeklyCat('<%= item[0] %>', '<%= item[1] %>', <%= index %>)
+    getExpWeeklyCat('<%= item[0] %>', '<%= item[1] %>', <%= index %>)
 
     <% }) %>
 
 
 
 
-    function getWeeklyCat(from_date, to_date, i) {
+    function getExpWeeklyCat(from_date, to_date, i) {
 
       var from = new Date(from_date);
       var to = new Date(to_date);
@@ -22,10 +22,10 @@
 
       $.ajax({
         method: "get",
-        url: "/bank/getWeeklyCatSum",
+        url: "/expenses/getExpWeeklyCatSum",
         data: {
-          from_date: f,
-          to_date: t,
+          exp_from_date: f,
+          exp_to_date: t,
         }
       })
         .done(function (msg) {
@@ -86,8 +86,8 @@
           // }
 
           // Create a new object
-          var ctxs = document.getElementById('chart-area-' + i);
-          window['myPolarArea' + i] = Chart.PolarArea(ctxs, configSecond);
+          var ctxs = document.getElementById('exp-chart-area-' + i);
+          window['myExpPolarArea' + i] = Chart.PolarArea(ctxs, configSecond);
         });
 
     }

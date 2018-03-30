@@ -55,13 +55,13 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarCollapse">
                 <ul class="navbar-nav mr-auto">
-                    <li class="nav-item active">
+                    <li class="nav-item">
                         <a class="nav-link" href="#">Home</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item <%=(req.originalUrl.includes('bank')) ? 'active' : ''%>">
                         <a class="nav-link" href="/bank">Bank</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item <%=(req.originalUrl.includes('expenses')) ? 'active' : ''%>">
                         <a class="nav-link" href="/expenses">Expenses</a>
                     </li>
                     <!--<li class="nav-item">-->

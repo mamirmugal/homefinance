@@ -1,7 +1,7 @@
 <%- partial('./header.ejs') %>
 
 
-<form name="filter_form" id="filter_form" method="get" action="/bank/filter">
+<form name="filter_form" id="filter_form" method="get" action="/expenses/filter">
     <div class="d-flex mt-3 flex-row justify-content-around align-self-stretch  mr-auto">
         <div class="p-2">
 
@@ -25,9 +25,25 @@
         </div>
         <div class="p-2">
             <div class="form-group row">
-                <label for="category_filter" class="col-sm-12 col-form-label text-center">Category</label>
+                <label for="product_type" class="col-sm-12 col-form-label text-center">Product Type</label>
                 <div class="col-sm-12">
-                    <select name="category_filter" id="category_filter" class="form-control">
+                    <select class="custom-select mr-sm-2" id="product_type" name="product_type">
+                        <option value="">All</option>
+                        <option <%= (typeof productType !== 'undefined' && productType == 'essential') ? 'selected' : '' %>
+                                value="essential">Essential
+                        </option>
+                        <option <%= (typeof productType !== 'undefined' && productType == 'extra') ? 'selected' : '' %>
+                                value="extra">Extra
+                        </option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="p-2">
+            <div class="form-group row">
+                <label for="exp_category_filter" class="col-sm-12 col-form-label text-center">Category</label>
+                <div class="col-sm-12">
+                    <select name="exp_category_filter" id="exp_category_filter" class="form-control">
                         <option value="">All</option>
                         <% category.forEach(function(item){ %>
                         <% if(catValue !== null && catValue == item) { %>
@@ -42,10 +58,21 @@
 
         <div class="p-2">
             <div class="form-group row">
-                <label for="subcategory_filter" class="col-sm-12 col-form-label  text-center">Sub-Category</label>
+                <label for="exp_subcategory_filter" class="col-sm-12 col-form-label  text-center">Sub-Category</label>
                 <div class="col-sm-12">
-                    <input type="hidden" id="sub_val" value="<%= subCatValue %>"/>
-                    <select name="subcategory_filter" id="subcategory_filter" class="form-control">
+                    <input type="hidden" id="exp_sub_val" value="<%= subCatValue %>"/>
+                    <select name="exp_subcategory_filter" id="exp_subcategory_filter" class="form-control">
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-2">
+            <div class="form-group row">
+                <label for="exp_title_filter" class="col-sm-12 col-form-label  text-center">Title</label>
+                <div class="col-sm-12">
+                    <input type="hidden" id="exp_title" value="<%= expTitle %>"/>
+                    <select name="exp_title_filter" id="exp_title_filter" class="form-control">
                     </select>
                 </div>
             </div>
@@ -62,6 +89,7 @@
 
 </form>
 
-<%- partial('./bankListing.ejs') %>
+
+<%- partial('./expensesListing.ejs') %>
 
 

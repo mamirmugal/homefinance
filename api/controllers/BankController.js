@@ -18,27 +18,27 @@ module.exports = {
   index: ((req, res) => {
 
     // getting first total count
-    Bank.count({})
-      .then((count) => {
+    // Bank.count({})
+    //   .then((count) => {
 
-        // then applying pagination
-        Bank.find({})
-          .sort({dates: 'ASC'})
-          .then((bankDetails) => {
+    // then applying pagination
+    Bank.find({})
+      .sort({dates: 'ASC'})
+      .then((bankDetails) => {
 
-            res.view('bank/index', {
-              bankDetails: bankDetails,
-              moment: moment,
-              last: (typeof req.session.last != 'undefined') ? req.session.last : null,
-              edit: (typeof req.session.edit != 'undefined') ? req.session.edit : null,
-            });
+        res.view('bank/index', {
+          bankDetails: bankDetails,
+          moment: moment,
+          last: (typeof req.session.last != 'undefined') ? req.session.last : null,
+          edit: (typeof req.session.edit != 'undefined') ? req.session.edit : null,
+        });
 
-          })
-          .catch((error) => {
-            console.log(error);
-            res.view(500, "Error while getting data from db.");
-          })
       })
+      .catch((error) => {
+        console.log(error);
+        res.view(500, "Error while getting data from db.");
+      })
+    // })
 
   }),
 
@@ -84,6 +84,9 @@ module.exports = {
             res.view(500, "Error while getting data from db.");
           })
       })
+      .catch((error) => {
+        console.log(error)
+      });
 
   }),
 
@@ -156,7 +159,10 @@ module.exports = {
             // if resolved the send to next promise
             resolve([categories, rows]);
           });
-        });
+        })
+          .catch((error) => {
+            console.log(error)
+          });
 
       });
 
@@ -174,6 +180,9 @@ module.exports = {
           subcat: subcat,
           cat: cat
         });
+      })
+      .catch((error) => {
+        console.log(error)
       });
 
 
@@ -321,6 +330,9 @@ module.exports = {
           .catch((err) => {
             console.log(err)
           });
+      })
+      .catch((error) => {
+        console.log(error)
       });
 
   }),
@@ -369,8 +381,7 @@ module.exports = {
         req.session.error = error.Errors;
 
         res.redirect('bank/edit/' + req.params.id);
-      })
-
+      });
 
   }),
 
@@ -480,7 +491,7 @@ module.exports = {
                 category: cat,
                 catValue: catValue,
                 subCatValue: subCatValue,
-                rows: rows,
+                bankDetails: rows,
                 toDate: toDate,
                 fromDate: fromDate,
                 moment: moment
@@ -495,10 +506,13 @@ module.exports = {
             subCatValue: subCatValue,
             toDate: toDate,
             fromDate: fromDate,
-            rows: [],
+            bankDetails: [],
             moment: moment
           });
         }
+      })
+      .catch((error) => {
+        console.log(error)
       });
 
 
@@ -598,10 +612,13 @@ module.exports = {
         res.view("bank/monthly", {
           bankDetails: bankDetails,
           moment: moment,
-          fromDate: fromDate.toDateString(),
-          toDate: toDate.toDateString(),
+          fromDate: moment(fromDate).format('Do MMMM  YYYY'),
+          toDate: moment(toDate).format('Do MMMM  YYYY'),
           bankAmountType: myProjService.getBankAmountType(),
         })
+      })
+      .catch((error) => {
+        console.log(error)
       });
 
   }),
@@ -639,7 +656,12 @@ module.exports = {
 
     promise
       .then((subcateogry) => {
-        res.json(subcateogry);
+
+        if (subcateogry.length > 0)
+          return res.json(subcateogry);
+      })
+      .catch((error) => {
+        console.log(error)
       });
 
   }),
@@ -705,7 +727,8 @@ module.exports = {
     // Promise returned from getting cat or subcat
     promise
       .then((cat) => {
-        res.json(cat)
+        if (cat.length > 0)
+          return res.json(cat)
       })
       .catch((error) => {
         console.log(error)
@@ -775,7 +798,8 @@ module.exports = {
     // Promise returned from getting cat or subcat
     promise
       .then((title) => {
-        res.json(title)
+        if (title.length > 0)
+          return res.json(title)
       })
       .catch((error) => {
         console.log(error)
@@ -804,7 +828,9 @@ module.exports = {
 
     // Getting the range of dates and pushing them into array
     let newDate = new Date();
-    newDate.setDate(fDate.getDate())
+    newDate.setDate(fDate.getDate() - 7);
+    newDate.setFullYear(fDate.getFullYear());
+    newDate.setMonth(fDate.getMonth());
     var arr = [];
     while (newDate < tDate) {
       newDate.setDate(newDate.getDate() + 7)
@@ -880,7 +906,8 @@ module.exports = {
     // Promise returned from getting cat or subcat
     promise
       .then((cat) => {
-        res.json(cat)
+        if (cat.length > 0)
+          return res.json(cat)
       })
       .catch((error) => {
         console.log(error)
@@ -909,7 +936,10 @@ module.exports = {
 
     // Getting the range of dates and pushing them into array
     let newDate = new Date();
-    newDate.setDate(fDate.getDate())
+    newDate.setDate(fDate.getDate() - 7);
+    newDate.setFullYear(fDate.getFullYear());
+    newDate.setMonth(fDate.getMonth());
+
     var arr = [];
     while (newDate < tDate) {
       newDate.setDate(newDate.getDate() + 7)
@@ -928,6 +958,11 @@ module.exports = {
   }),
 
 
+  /**
+   * getWeekly bar ajax data
+   *
+   * @author Muhammad Amir
+   */
   getWeeklyBarCatSum: ((req, res) => {
 
     let dates = myProjService.getToFromDate();
@@ -962,7 +997,6 @@ module.exports = {
             $group: {_id: '$category', sum: {$sum: "$amount"}}
           }
         ])
-
           .toArray((err, rows) => {
 
             // error then throw error
@@ -972,22 +1006,21 @@ module.exports = {
             // if resolved the send to next promise
             resolve(rows);
           });
-
       });
-
     });
 
 
     // Promise returned from getting cat or subcat
     promise
       .then((cat) => {
-        res.json(cat)
+        if (cat.length > 0)
+          return res.json(cat);
       })
       .catch((error) => {
         console.log(error)
       })
-
   }),
+
 };
 
 

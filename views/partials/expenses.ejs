@@ -1,0 +1,79 @@
+<script type="application/javascript">
+
+
+    <% if(typeof expenses_sub_category !== 'undefined') { %>
+    var expenses_sub_category = [];
+    <% expenses_sub_category.forEach(function(item){ %>
+    expenses_sub_category.push('<%= item %>')
+    <% }); %>
+    $('#expenses_sub_category .expenses_sub_category').typeahead({
+        hint: true,
+        highlight: true,
+        minLength: 1
+      },
+      {
+        name: 'subcategory',
+        source: substringMatcher(expenses_sub_category)
+      });
+    <% } %>
+
+    <% if(typeof expenses_category !== 'undefined') { %>
+    var expenses_category = [];
+    <% expenses_category.forEach(function(item){ %>
+    expenses_category.push('<%= item %>')
+    <% }); %>
+    $('#expenses_category .expenses_category').typeahead({
+        hint: true,
+        highlight: true,
+        minLength: 1
+      },
+      {
+        name: 'category',
+        source: substringMatcher(expenses_category)
+      });
+    <% } %>
+
+
+    <% if(typeof expenses_title !== 'undefined') { %>
+    var expenses_title = [];
+    <% expenses_title.forEach(function(item){ %>
+    expenses_title.push('<%= item %>')
+    <% }); %>
+    $('#expenses_title .expenses_title').typeahead({
+        hint: true,
+        highlight: true,
+        minLength: 1
+      },
+      {
+        name: 'title',
+        source: substringMatcher(expenses_title)
+      });
+    <% } %>
+
+    <% if(typeof expenses_company !== 'undefined') { %>
+    var expenses_company = [];
+    <% expenses_company.forEach(function(item){ %>
+    expenses_company.push('<%= item %>')
+    <% }); %>
+    $('#expenses_company .expenses_company').typeahead({
+        hint: true,
+        highlight: true,
+        minLength: 1
+      },
+      {
+        name: 'company',
+        source: substringMatcher(expenses_company)
+      });
+    <% } %>
+
+    jQuery(function($){
+
+      // Calculating total amount with quantity and amount
+      $('#amount, #quantity').keyup(function(){
+            var amount = parseFloat($(this).val());
+            var quantity = parseFloat($('#quantity').val());
+            $('#total_amount').val(amount * quantity);
+      });
+    });
+
+</script>

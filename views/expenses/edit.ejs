@@ -37,13 +37,13 @@
     <div class="col-md-6">
 
         <!-- Expense form -->
-        <form name="add_expenses" method="post" action="/expenses/create">
+        <form name="edit_expenses" method="post" action="/expenses/update/<%=fields.id%>">
 
             <div class="form-group row">
                 <label for="dates" class="col-sm-3 col-form-label">Date</label>
                 <div class="col-sm-9">
                     <input type="text" readonly class="form-control datepicker" id="dates" name="dates"
-                           value="<%= (typeof fields.dates !== 'undefined') ? fields.dates : dates %>">
+                           value="<%= (typeof fields.dates !== 'undefined') ? moment(fields.dates).format("DD-MM-YYYY") : dates %>">
                 </div>
             </div>
 

@@ -2,7 +2,8 @@
 
 
 
-  <% if(typeof arrWeeklyBar != 'undefined'){ %>
+  <% if(typeof arrExpWeeklyBar != 'undefined'){ %>
+
 
   /**
    * Labels will be weekly date
@@ -17,9 +18,9 @@
    */
   var count = 0;
 
-  <% arrWeeklyBar.forEach(function(item, index){ %>
+  <% arrExpWeeklyBar.forEach(function(item, index){ %>
   count += 1;
-  getWeeklyBarCat('<%= item[0] %>', '<%= item[1] %>', <%= index %>)
+  getExpWeeklyBarCat('<%= item[0] %>', '<%= item[1] %>', <%= index %>)
   <% }) %>
 
   var globalTitle = [];
@@ -31,7 +32,7 @@
    * @param to_date
    * @param i
    */
-  function getWeeklyBarCat(from_date, to_date, i) {
+  function getExpWeeklyBarCat(from_date, to_date, i) {
 
     // Converting string date to object date
     var from = new Date(from_date);
@@ -44,10 +45,10 @@
 
     $.ajax({
       method: "get",
-      url: "/bank/getWeeklyBarCatSum",
+      url: "/expenses/getExpWeeklyBarCatSum",
       data: {
-        from_date: f,
-        to_date: t,
+        exp_from_date: f,
+        exp_to_date: t,
         i: i,
       }
     })
@@ -100,7 +101,7 @@
             datasets: endDataSet
           };
 
-          var ctx = document.getElementById('bar-chart-area').getContext('2d');
+          var ctx = document.getElementById('exp-bar-chart-area').getContext('2d');
           window.myBar = new Chart(ctx, {
             type: 'bar',
             data: barChartData,

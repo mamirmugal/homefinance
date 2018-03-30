@@ -290,4 +290,26 @@ module.exports = {
   },
 
 
+
+  /**
+   * These are the field names which will be used to show error messages
+   *
+   * @author  Muhammad Amir
+   * @returns {{dates: string, paid_from: string, amount_type: string, company: string, category: string, subcategory: string, title: string, description: string, quantity: string, amount: string, total_amount: string}}
+   */
+  getExpensesFields: () => {
+    return {
+      dates: 'Date',
+      paid_from: 'Paid From',
+      amount_type: 'Payment type',
+      company: 'Company',
+      category: 'Category',
+      subcategory: 'Sub-category',
+      title: 'Title',
+      description: 'Description',
+      quantity: 'Quantity',
+      amount: 'Amount',
+      total_amount: 'Total Amount',
+    }
+  },
 };

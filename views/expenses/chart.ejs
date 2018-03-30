@@ -1,14 +1,14 @@
 <%- partial('./header.ejs') %>
 
 
-<form name="filter_form" id="filter_form" method="get" action="/bank/chart">
+<form name="filter_form" id="filter_form" method="get" action="/expenses/chart">
     <div class="d-flex mt-3 flex-row justify-content-around align-self-stretch  mr-auto">
         <div class="p1">
 
             <div class="form-group row">
                 <label for="from_date" class="col-sm-12 col-form-label  text-center">From Date</label>
                 <div class="col-sm-12">
-                    <input type="text" readonly class="form-control datepicker" id="from_date" name="from_date"
+                    <input type="text" readonly class="form-control datepicker" id="exp_from_date" name="exp_from_date"
                            value="<%= fromDate %>">
                 </div>
             </div>
@@ -18,7 +18,7 @@
             <div class="form-group row">
                 <label for="to_date" class="col-sm-12 col-form-label  text-center">To Date</label>
                 <div class="col-sm-12">
-                    <input type="text" readonly class="form-control datepicker" id="to_date" name="to_date"
+                    <input type="text" readonly class="form-control datepicker" id="exp_to_date" name="exp_to_date"
                            value="<%= toDate %>">
                 </div>
             </div>
@@ -41,7 +41,7 @@
     <div class="col-md-6">
         <div class="d-flex">
             <div id="canvas-holder" style="width:100%">
-                <canvas id="chart-area"></canvas>
+                <canvas id="exp-chart-area"></canvas>
             </div>
         </div>
     </div>
@@ -49,7 +49,7 @@
 
         <div class="d-flex">
             <div id="canvas-holder" style="width:100%">
-                <canvas id="chart-area-subcat"></canvas>
+                <canvas id="exp-chart-area-subcat"></canvas>
             </div>
         </div>
 
@@ -62,7 +62,7 @@
     <div class="col-md-6">
         <div class="d-flex">
             <div id="canvas-holder" style="width:100%">
-                <canvas id="chart-area-title"></canvas>
+                <canvas id="exp-chart-area-title"></canvas>
             </div>
         </div>
 

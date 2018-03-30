@@ -1,0 +1,36 @@
+<script type="application/javascript">
+
+
+    <% if(typeof subcat !== 'undefined') { %>
+    var subcat = [];
+    <% subcat.forEach(function(item){ %>
+    subcat.push('<%= item %>')
+    <% }); %>
+    $('#subcat .subcat').typeahead({
+        hint: true,
+        highlight: true,
+        minLength: 1
+      },
+      {
+        name: 'subcategory',
+        source: substringMatcher(subcat)
+      });
+    <% } %>
+
+    <% if(typeof cat !== 'undefined') { %>
+    var cat = [];
+    <% cat.forEach(function(item){ %>
+    cat.push('<%= item %>')
+    <% }); %>
+    $('#cat .cat').typeahead({
+        hint: true,
+        highlight: true,
+        minLength: 1
+      },
+      {
+        name: 'category',
+        source: substringMatcher(cat)
+      });
+    <% } %>
+
+</script>

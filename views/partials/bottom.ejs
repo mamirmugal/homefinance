@@ -22,40 +22,6 @@
     };
   };
 
-
-  <% if(typeof subcat !== 'undefined') { %>
-  var subcat = [];
-  <% subcat.forEach(function(item){ %>
-  subcat.push('<%= item %>')
-  <% }); %>
-  $('#subcat .subcat').typeahead({
-      hint: true,
-      highlight: true,
-      minLength: 1
-    },
-    {
-      name: 'subcategory',
-      source: substringMatcher(subcat)
-    });
-  <% } %>
-
-  <% if(typeof cat !== 'undefined') { %>
-  var cat = [];
-  <% cat.forEach(function(item){ %>
-  cat.push('<%= item %>')
-  <% }); %>
-  $('#cat .cat').typeahead({
-      hint: true,
-      highlight: true,
-      minLength: 1
-    },
-    {
-      name: 'category',
-      source: substringMatcher(cat)
-    });
-  <% } %>
-
-
   /**
    * Returns a random integer between min (inclusive) and max (inclusive)
    * Using Math.round() will give you a non-uniform distribution!
@@ -84,5 +50,11 @@
   ];
 
 </script>
+<%- partial('./bank.ejs') %>
+<%- partial('./bankchart.ejs') %>
+<%- partial('./expenses.ejs') %>
+<%- partial('./expenseschart.ejs') %>
 <%- partial('./donutweekly.ejs') %>
+<%- partial('./expweekly.ejs') %>
 <%- partial('./bankweeklybarchart.ejs') %>
+<%- partial('./expweeklybarchart.ejs') %>

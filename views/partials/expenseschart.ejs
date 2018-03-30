@@ -1,0 +1,224 @@
+<script>
+    <% if(typeof chart_exp_filter !== 'undefined'){ %>
+    var expDataes = [];
+    var expDataLabels = [];
+    var expSetColors = [];
+
+    <% chart_exp_filter.forEach(function(item, index){ %>
+    expDataes.push(<%= item.sum %>)
+    expDataLabels.push('<%= item._id %>')
+    expSetColors.push(color[getRandomInt(0, color.length)])
+    <% }) %>
+
+    var configExpMain = {
+      type: 'doughnut',
+      data: {
+        datasets: [{
+          data: expDataes,
+          backgroundColor: expSetColors,
+          label: 'Filter Expenses Categories'
+        }],
+        labels: expDataLabels
+      },
+      options: {
+        responsive: true,
+        legend: {
+          position: 'top',
+        },
+        title: {
+          display: true,
+          text: 'Filter Expenses Categories'
+        },
+        animation: {
+          animateScale: true,
+          animateRotate: true
+        },
+        onClick: function (one, two) {
+          if (typeof two[0] !== 'undefined') {
+
+            // Calling ajax value to show subcategories
+            getExpSubCategories(expDataLabels[two[0]._index])
+
+            // remove columns
+            // config.data.datasets[0].data.splice(two[0]._index, two[0]._index)
+            // window.myDoughnut.update();
+          }
+        }
+      }
+    };
+
+
+    function getExpSubCategories(cat) {
+      console.log({
+        cat: cat,
+        from_date: $("#exp_from_date").val(),
+        to_date: $("#exp_to_date").val(),
+      })
+      $.ajax({
+        method: "get",
+        url: "/expenses/getExpSubCatSum",
+        data: {
+          cat: cat,
+          from_date: $("#exp_from_date").val(),
+          to_date: $("#exp_to_date").val(),
+        }
+      })
+        .done(function (msg) {
+
+          var expSubCatDataSet = [];
+          var expSubCatDataSetLabels = [];
+          var expSubCatDataColor = [];
+          for (var x in msg) {
+
+            expSubCatDataSet.push(msg[x].sum)
+            expSubCatDataSetLabels.push(msg[x]._id)
+            expSubCatDataColor.push(color[getRandomInt(0, color.length)])
+
+          }
+          var expConfigSecond = {
+            data: {
+              datasets: [{
+                data: expSubCatDataSet,
+                backgroundColor: expSubCatDataColor,
+                label: 'Sub Categories' // for legend
+              }],
+              labels: expSubCatDataSetLabels
+            },
+            options: {
+              responsive: true,
+              legend: {
+                position: 'right',
+              },
+              title: {
+                display: true,
+                text: 'Sub Categories ' + cat
+              },
+              scale: {
+                ticks: {
+                  beginAtZero: true
+                },
+                reverse: false
+              },
+              animation: {
+                animateRotate: false,
+                animateScale: true
+              },
+              onClick: function (one, two) {
+
+                if (typeof two[0] !== 'undefined') {
+
+                  // Calling ajax value to show subcategories
+                  getExpTitleSum(cat, expSubCatDataSetLabels[two[0]._index]);
+                }
+
+              }
+            }
+          };
+
+          // Remove the old object
+          if (typeof window.myExpPolarArea != 'undefined') {
+            window.myExpPolarArea.destroy();
+          }
+
+          // Create a new object
+          var ctxsExp = document.getElementById('exp-chart-area-subcat');
+          window.myExpPolarArea = Chart.PolarArea(ctxsExp, expConfigSecond);
+        });
+
+    }
+
+
+    // window.onload = function () {
+    jQuery(function ($) {
+      if (document.getElementById('exp-chart-area') != null) {
+        var ctxExp = document.getElementById('exp-chart-area').getContext('2d');
+        window.myExpDoughnut = new Chart(ctxExp, configExpMain);
+      }
+    })
+
+    // };
+
+
+    /**
+     * Getting title from sub category
+     *
+     * @author Muhammad Amir
+     * @param subcat
+     */
+    function getExpTitleSum(cat, subcat) {
+
+      $.ajax({
+        method: "get",
+        url: "/expenses/getExpTitleSum",
+        data: {
+          cat: cat,
+          subcat: subcat,
+          from_date: $("#exp_from_date").val(),
+          to_date: $("#exp_to_date").val(),
+        }
+      })
+        .done(function (msg) {
+
+          var dataSetExpTitle = [];
+          var dataSetExpTitleLabels = [];
+          var dataSetExpTitleColor = [];
+          for (var x in msg) {
+
+            dataSetExpTitle.push(msg[x].sum)
+            dataSetExpTitleLabels.push(msg[x]._id)
+            dataSetExpTitleColor.push(color[getRandomInt(0, color.length)])
+
+          }
+          var expConfigThird = {
+            data: {
+              datasets: [{
+                data: dataSetExpTitle,
+                backgroundColor: dataSetExpTitleColor,
+                label: 'Title' // for legend
+              }],
+              labels: dataSetExpTitleLabels
+            },
+            options: {
+              responsive: true,
+              legend: {
+                position: 'right',
+              },
+              title: {
+                display: true,
+                text: 'Sub Title ' + subcat
+              },
+              scale: {
+                ticks: {
+                  beginAtZero: true
+                },
+                reverse: false
+              },
+              animation: {
+                animateRotate: false,
+                animateScale: true
+              },
+              onClick: function (one, two) {
+
+                // if (typeof two[0] !== 'undefined') {
+                //
+                // // Calling ajax value to show subcategories
+                // getExpTitleSum(dataSetExpTitleLabels[two[0]._index]);
+                // }
+
+              }
+            }
+          };
+
+          // Remove the old object
+          if (typeof window.myExpSubcat != 'undefined') {
+            window.myExpSubcat.destroy();
+          }
+
+          // Create a new object
+          var catExpTitle = document.getElementById('exp-chart-area-title');
+          window.myExpSubcat = Chart.PolarArea(catExpTitle, expConfigThird);
+        });
+
+    }
+    <% } %>
+</script>
