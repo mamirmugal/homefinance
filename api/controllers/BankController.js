@@ -1015,6 +1015,8 @@ module.exports = {
       .then((cat) => {
         if (cat.length > 0)
           return res.json(cat);
+        else
+          return res.json({});
       })
       .catch((error) => {
         console.log(error)

@@ -1,16 +1,8 @@
+<% if(typeof arrWeekly != 'undefined'){ %>
 <script>
-
-
-    <% if(typeof arrWeekly != 'undefined'){ %>
-
     <% arrWeekly.forEach(function(item, index){ %>
-
     getWeeklyCat('<%= item[0] %>', '<%= item[1] %>', <%= index %>)
-
     <% }) %>
-
-
-
 
     function getWeeklyCat(from_date, to_date, i) {
 
@@ -91,6 +83,5 @@
         });
 
     }
-    <% } %>
-
 </script>
+<% } %>

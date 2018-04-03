@@ -1,9 +1,5 @@
+<% if(typeof arrExpWeeklyBar != 'undefined'){ %>
 <script>
-
-
-
-  <% if(typeof arrExpWeeklyBar != 'undefined'){ %>
-
 
   /**
    * Labels will be weekly date
@@ -20,7 +16,7 @@
 
   <% arrExpWeeklyBar.forEach(function(item, index){ %>
   count += 1;
-  getExpWeeklyBarCat('<%= item[0] %>', '<%= item[1] %>', <%= index %>)
+  getExpWeeklyBarCat('<%= item[0] %>', '<%= item[1] %>', <%= index %>);
   <% }) %>
 
   var globalTitle = [];
@@ -41,7 +37,6 @@
     // breaking down date to send by ajax
     var f = from.getDate() + "-" + (from.getMonth() + 1) + "-" + from.getFullYear();
     var t = to.getDate() + "-" + (to.getMonth() + 1) + "-" + to.getFullYear();
-
 
     $.ajax({
       method: "get",
@@ -121,8 +116,5 @@
       });
 
   }
-
-  <% } %>
-
-
 </script>
+<% } %>

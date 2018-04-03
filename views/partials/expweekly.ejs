@@ -1,96 +1,90 @@
+<% if(typeof arrExpWeekly != 'undefined'){ %>
 <script>
 
+  /**
+   * Calling weekly method
+   */
+  <% arrExpWeekly.forEach(function(item, index){ %>
+  getExpWeeklyCat('<%= item[0] %>', '<%= item[1] %>', <%= index %>)
+  <% }); %>
 
-    <% if(typeof arrExpWeekly != 'undefined'){ %>
+  function getExpWeeklyCat(from_date, to_date, i) {
 
-    <% arrExpWeekly.forEach(function(item, index){ %>
+    var from = new Date(from_date);
+    var to = new Date(to_date);
 
-    getExpWeeklyCat('<%= item[0] %>', '<%= item[1] %>', <%= index %>)
+    var f = from.getDate() + "-" + (from.getMonth() + 1) + "-" + from.getFullYear();
+    var t = to.getDate() + "-" + (to.getMonth() + 1) + "-" + to.getFullYear();
 
-    <% }) %>
+    $.ajax({
+      method: "get",
+      url: "/expenses/getExpWeeklyCatSum",
+      data: {
+        exp_from_date: f,
+        exp_to_date: t,
+      }
+    })
+      .done(function (msg) {
 
+        var dataSet = [];
+        var dataSetLabels = [];
+        var dataColor = [];
+        for (var x in msg) {
 
+          dataSet.push(msg[x].sum)
+          dataSetLabels.push(msg[x]._id)
+          dataColor.push(color[getRandomInt(0, color.length)])
 
-
-    function getExpWeeklyCat(from_date, to_date, i) {
-
-      var from = new Date(from_date);
-      var to = new Date(to_date);
-
-      var f = from.getDate() + "-" + (from.getMonth() + 1) + "-" + from.getFullYear();
-      var t = to.getDate() + "-" + (to.getMonth() + 1) + "-" + to.getFullYear();
-
-      $.ajax({
-        method: "get",
-        url: "/expenses/getExpWeeklyCatSum",
-        data: {
-          exp_from_date: f,
-          exp_to_date: t,
         }
-      })
-        .done(function (msg) {
-
-          var dataSet = [];
-          var dataSetLabels = [];
-          var dataColor = [];
-          for (var x in msg) {
-
-            dataSet.push(msg[x].sum)
-            dataSetLabels.push(msg[x]._id)
-            dataColor.push(color[getRandomInt(0, color.length)])
-
-          }
-          var configSecond = {
-            data: {
-              datasets: [{
-                data: dataSet,
-                backgroundColor: dataColor,
-                label: 'Categories' // for legend
-              }],
-              labels: dataSetLabels
+        var configSecond = {
+          data: {
+            datasets: [{
+              data: dataSet,
+              backgroundColor: dataColor,
+              label: 'Categories' // for legend
+            }],
+            labels: dataSetLabels
+          },
+          options: {
+            responsive: true,
+            legend: {
+              position: 'right',
             },
-            options: {
-              responsive: true,
-              legend: {
-                position: 'right',
+            title: {
+              display: true,
+              text: 'Categories ' + f + " " + t
+            },
+            scale: {
+              ticks: {
+                beginAtZero: true
               },
-              title: {
-                display: true,
-                text: 'Categories ' + f + " " + t
-              },
-              scale: {
-                ticks: {
-                  beginAtZero: true
-                },
-                reverse: false
-              },
-              animation: {
-                animateRotate: false,
-                animateScale: true
-              },
-              onClick: function (one, two) {
+              reverse: false
+            },
+            animation: {
+              animateRotate: false,
+              animateScale: true
+            },
+            onClick: function (one, two) {
 
-                if (typeof two[0] !== 'undefined') {
+              if (typeof two[0] !== 'undefined') {
 
-                  // Calling ajax value to show subcategories
-                  //getTitleSum(cat, dataSetLabels[two[0]._index]);
-                }
-
+                // Calling ajax value to show subcategories
+                //getTitleSum(cat, dataSetLabels[two[0]._index]);
               }
+
             }
-          };
+          }
+        };
 
-          // Remove the old object
-          // if (typeof window.myPolarArea != 'undefined') {
-          //   window.myPolarArea.destroy();
-          // }
+        // Remove the old object
+        // if (typeof window.myPolarArea != 'undefined') {
+        //   window.myPolarArea.destroy();
+        // }
 
-          // Create a new object
-          var ctxs = document.getElementById('exp-chart-area-' + i);
-          window['myExpPolarArea' + i] = Chart.PolarArea(ctxs, configSecond);
-        });
-
-    }
-    <% } %>
-
+        // Create a new object
+        var ctxs = document.getElementById('exp-chart-area-' + i);
+        window['myExpPolarArea' + i] = Chart.PolarArea(ctxs, configSecond);
+      });
+  }
 </script>
+<% } %>
