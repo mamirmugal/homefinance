@@ -61,6 +61,10 @@ module.exports = {
       type:'float'
     },
 
+    quantity_bought:{
+      type:'float'
+    },
+
     unit: {
       type: 'string'
     },

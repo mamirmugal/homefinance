@@ -182,6 +182,19 @@ module.exports = {
         let expenses_sub_category = array.pop();
         let expenses_category = array.pop();
 
+        // this is to add previous fields to the
+        // add method
+        if (typeof req.session.same != 'undefined') {
+          fields.dates = moment(req.session.same.dates).format("DD-MM-YYYY");
+          fields.paid_from = req.session.same.paid_from;
+          fields.amount_type = req.session.same.amount_type;
+          fields.payment_type = req.session.same.payment_type;
+          fields.company = req.session.same.company;
+          fields.category = req.session.same.category;
+          fields.subcategory = req.session.same.subcategory;
+          fields.product_type = req.session.same.product_type;
+        }
+
         res.view('expenses/add', {
           dates: dates,
           fields: fields,
@@ -221,6 +234,7 @@ module.exports = {
       description: req.body.description,
       product_type: req.body.product_type,
       quantity_per_unit: req.body.quantity_per_unit,
+      quantity_bought: req.body.quantity_bought,
       unit: req.body.unit,
       quantity: req.body.quantity,
       amount: req.body.amount,
@@ -231,8 +245,24 @@ module.exports = {
         // Adding last added row to the session
         req.session.edit = reqs.id;
 
-        if (typeof req.body.add_another != 'undefined')
+        if (typeof req.body.add_another != 'undefined') {
+
+          // if selected the add same as before
+          if (typeof req.body.same_another != 'undefined') {
+            req.session.same = {
+              dates: myProjService.parseDate(req.body.dates),
+              paid_from: req.body.paid_from,
+              amount_type: req.body.amount_type,
+              payment_type: req.body.payment_type,
+              company: req.body.company,
+              category: req.body.category,
+              subcategory: req.body.subcategory,
+              product_type: req.body.product_type,
+            };
+          }
+
           res.redirect('expenses/add');
+        }
         else
         // return res.redirect('back')
           res.redirect('expenses');
@@ -451,6 +481,7 @@ module.exports = {
       description: req.body.description,
       product_type: req.body.product_type,
       quantity_per_unit: req.body.quantity_per_unit,
+      quantity_bought: req.body.quantity_bought,
       unit: req.body.unit,
       quantity: req.body.quantity,
       amount: req.body.amount,
@@ -744,7 +775,7 @@ module.exports = {
           expensesDetails: expensesDetails,
           moment: moment,
           fromDate: moment(fromDate).format('Do MMMM  YYYY'),
-          toDate:  moment(toDate).format('Do MMMM  YYYY'),
+          toDate: moment(toDate).format('Do MMMM  YYYY'),
         })
       })
       .catch((error) => {
@@ -968,7 +999,6 @@ module.exports = {
       })
 
   }),
-
 
 
   /**

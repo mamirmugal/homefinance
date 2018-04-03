@@ -2,6 +2,9 @@
 
 a [Sails](http://sailsjs.org) application
 
+## Help
+- [IBM link](https://www.ibm.com/developerworks/library/wa-build-deploy-web-app-sailsjs-2-bluemix/index.html)
+
 ## Important Notes
 - start the docker machine first `docker-machine start`
 - run command to set env variables `docker-machine env default`

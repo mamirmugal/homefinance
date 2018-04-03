@@ -127,7 +127,7 @@
             <div class="form-group row">
                 <label for="description" class="col-sm-3 col-form-label">Description</label>
                 <div class="col-sm-9">
-                    <textarea class="custom-select mr-sm-2" name="description" id="description" cols="30"
+                    <textarea class="form-control mr-sm-2" name="description" id="description" cols="30"
                               rows="10"><%= (typeof fields.description !== 'undefined') ? fields.description : "" %></textarea>
                 </div>
             </div>
@@ -150,15 +150,23 @@
             <div class="form-group row">
                 <label for="quantity_per_unit" class="col-sm-3 col-form-label">Quantity per unit</label>
                 <div class="col-sm-9">
-                    <input type="text" class="custom-select mr-sm-2" name="quantity_per_unit" id="quantity_per_unit"
+                    <input type="text" class="form-control mr-sm-2" name="quantity_per_unit" id="quantity_per_unit"
                            value="<%= (typeof fields.quantity_per_unit !== 'undefined') ? fields.quantity_per_unit : 0 %>">
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label for="quantity_per_unit" class="col-sm-3 col-form-label">Quantity bought</label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control mr-sm-2" name="quantity_bought" id="quantity_bought"
+                           value="<%= (typeof fields.quantity_bought !== 'undefined') ? fields.quantity_bought : 0 %>">
                 </div>
             </div>
 
             <div class="form-group row">
                 <label for="unit" class="col-sm-3 col-form-label">Unit</label>
                 <div class="col-sm-9">
-                    <input type="text" class="custom-select mr-sm-2" name="unit" id="unit"
+                    <input type="text" class="form-control mr-sm-2" name="unit" id="unit"
                            value="<%= (typeof fields.unit !== 'undefined') ? fields.unit : "" %>">
                 </div>
             </div>
@@ -166,7 +174,7 @@
             <div class="form-group row">
                 <label for="quantity" class="col-sm-3 col-form-label">Quantity</label>
                 <div class="col-sm-9">
-                    <input type="text" class="custom-select mr-sm-2" name="quantity" id="quantity"
+                    <input type="text" class="form-control mr-sm-2" name="quantity" id="quantity"
                            value="<%= (typeof fields.quantity !== 'undefined') ? fields.quantity : "" %>">
                 </div>
             </div>
@@ -174,7 +182,7 @@
             <div class="form-group row">
                 <label for="amount" class="col-sm-3 col-form-label">Amount</label>
                 <div class="col-sm-9">
-                    <input type="text" class="custom-select mr-sm-2" name="amount" id="amount"
+                    <input type="text" class="form-control mr-sm-2" name="amount" id="amount"
                            value="<%= (typeof fields.amount !== 'undefined') ? fields.amount : "" %>">
                 </div>
             </div>
@@ -182,15 +190,23 @@
             <div class="form-group row">
                 <label for="total_amount" class="col-sm-3 col-form-label">Total amount</label>
                 <div class="col-sm-9">
-                    <input type="text" class="custom-select mr-sm-2" name="total_amount" id="total_amount"
+                    <input type="text" class="form-control mr-sm-2" name="total_amount" id="total_amount"
                            value="<%= (typeof fields.total_amount !== 'undefined') ? fields.total_amount : "" %>">
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label for="total_amount" class="col-sm-3 col-form-label">Add another</label>
+                <div class="col-sm-9">
+                    <input type="checkbox" class="form-check-input" id="add_another" name="add_another" />
+
                 </div>
             </div>
 
             <div class="form-group row">
                 <label for="total_price" class="col-sm-3 col-form-label"></label>
                 <div class="col-sm-9">
-                    <input type="checkbox" class="form-check-input" id="add_another" name="add_another">
+                    <input type="checkbox" class="form-check-input" id="same_another" checked name="same_another"/>
                     <button class="btn btn-primary" type="submit">Submit</button>
                 </div>
             </div>
