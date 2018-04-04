@@ -65,6 +65,22 @@
       });
     <% } %>
 
+    <% if(typeof expenses_unit !== 'undefined') { %>
+    var expenses_unit = [];
+    <% expenses_unit.forEach(function(item){ %>
+    expenses_unit.push('<%= item %>')
+    <% }); %>
+    $('#expenses_unit .expenses_unit').typeahead({
+        hint: true,
+        highlight: true,
+        minLength: 1
+      },
+      {
+        name: 'unit',
+        source: substringMatcher(expenses_unit)
+      });
+    <% } %>
+
     jQuery(function($){
 
       // Calculating total amount with quantity and amount

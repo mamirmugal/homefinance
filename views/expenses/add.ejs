@@ -147,7 +147,7 @@
             </div>
 
 
-            <div class="form-group row">
+            <div class="form-group row"  style="display:none;">
                 <label for="quantity_per_unit" class="col-sm-3 col-form-label">Quantity per unit</label>
                 <div class="col-sm-9">
                     <input type="text" class="form-control mr-sm-2" name="quantity_per_unit" id="quantity_per_unit"
@@ -156,7 +156,7 @@
             </div>
 
             <div class="form-group row">
-                <label for="quantity_per_unit" class="col-sm-3 col-form-label">Quantity bought</label>
+                <label for="quantity_bought" class="col-sm-3 col-form-label">Quantity bought</label>
                 <div class="col-sm-9">
                     <input type="text" class="form-control mr-sm-2" name="quantity_bought" id="quantity_bought"
                            value="<%= (typeof fields.quantity_bought !== 'undefined') ? fields.quantity_bought : 0 %>">
@@ -165,8 +165,8 @@
 
             <div class="form-group row">
                 <label for="unit" class="col-sm-3 col-form-label">Unit</label>
-                <div class="col-sm-9">
-                    <input type="text" class="form-control mr-sm-2" name="unit" id="unit"
+                <div class="col-sm-9 autocomplete"  id="expenses_unit">
+                    <input type="text" class="form-control mr-sm-2 expenses_unit" name="unit" id="unit"
                            value="<%= (typeof fields.unit !== 'undefined') ? fields.unit : "" %>">
                 </div>
             </div>
@@ -198,7 +198,7 @@
             <div class="form-group row">
                 <label for="total_amount" class="col-sm-3 col-form-label">Add another</label>
                 <div class="col-sm-9">
-                    <input type="checkbox" class="form-check-input" id="add_another" name="add_another" />
+                    <input type="checkbox" class="form-check-input" id="add_another" checked name="add_another" />
 
                 </div>
             </div>

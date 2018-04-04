@@ -149,6 +149,31 @@ module.exports = {
 
       });
 
+    }).then((all_categories) => {
+
+      return new Promise((resolve, reject) => {
+
+        Expenses.native((err, collection) => {
+
+          // throw error when error
+          if (err)
+            reject(err);
+
+          // Getting only categoryies
+          collection.distinct('unit', (err, rows) => {
+
+            // error then throw error
+            if (err)
+              reject(err);
+
+            all_categories.push(rows)
+            // if resolved the send to next promise
+            resolve(all_categories);
+          });
+        });
+
+      });
+
     }).then((all_categories_title) => {
 
       return new Promise((resolve, reject) => {
@@ -178,6 +203,7 @@ module.exports = {
       .then((array) => {
 
         let expenses_company = array.pop();
+        let expenses_unit = array.pop();
         let expenses_title = array.pop();
         let expenses_sub_category = array.pop();
         let expenses_category = array.pop();
@@ -201,6 +227,7 @@ module.exports = {
           errors: errors,
           expensesFieldNames: expensesFieldNames,
           expenses_company: expenses_company,
+          expenses_unit: expenses_unit,
           expenses_title: expenses_title,
           expenses_sub_category: expenses_sub_category,
           expenses_category: expenses_category
@@ -245,22 +272,21 @@ module.exports = {
         // Adding last added row to the session
         req.session.edit = reqs.id;
 
+        // if selected the add same as before
+        if (typeof req.body.same_another != 'undefined') {
+          req.session.same = {
+            dates: myProjService.parseDate(req.body.dates),
+            paid_from: req.body.paid_from,
+            amount_type: req.body.amount_type,
+            payment_type: req.body.payment_type,
+            company: req.body.company,
+            category: req.body.category,
+            subcategory: req.body.subcategory,
+            product_type: req.body.product_type,
+          };
+        }
+
         if (typeof req.body.add_another != 'undefined') {
-
-          // if selected the add same as before
-          if (typeof req.body.same_another != 'undefined') {
-            req.session.same = {
-              dates: myProjService.parseDate(req.body.dates),
-              paid_from: req.body.paid_from,
-              amount_type: req.body.amount_type,
-              payment_type: req.body.payment_type,
-              company: req.body.company,
-              category: req.body.category,
-              subcategory: req.body.subcategory,
-              product_type: req.body.product_type,
-            };
-          }
-
           res.redirect('expenses/add');
         }
         else
@@ -393,6 +419,31 @@ module.exports = {
 
       });
 
+    }).then((all_categories) => {
+
+      return new Promise((resolve, reject) => {
+
+        Expenses.native((err, collection) => {
+
+          // throw error when error
+          if (err)
+            reject(err);
+
+          // Getting only categoryies
+          collection.distinct('unit', (err, rows) => {
+
+            // error then throw error
+            if (err)
+              reject(err);
+
+            all_categories.push(rows)
+            // if resolved the send to next promise
+            resolve(all_categories);
+          });
+        });
+
+      });
+
     }).then((all_categories_title) => {
 
       return new Promise((resolve, reject) => {
@@ -422,6 +473,7 @@ module.exports = {
       .then((array) => {
 
         let expenses_company = array.pop();
+        let expenses_unit = array.pop();
         let expenses_title = array.pop();
         let expenses_sub_category = array.pop();
         let expenses_category = array.pop();
@@ -436,6 +488,7 @@ module.exports = {
               moment: moment,
               expensesFieldNames: expensesFieldNames,
               expenses_company: expenses_company,
+              expenses_unit: expenses_unit,
               expenses_title: expenses_title,
               expenses_sub_category: expenses_sub_category,
               expenses_category: expenses_category
