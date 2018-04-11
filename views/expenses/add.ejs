@@ -189,9 +189,12 @@
 
             <div class="form-group row">
                 <label for="total_amount" class="col-sm-3 col-form-label">Total amount</label>
-                <div class="col-sm-9">
-                    <input type="text" class="form-control mr-sm-2" name="total_amount" id="total_amount"
+                <div class="col-sm-6">
+                    <input type="text" class="form-control mr-sm-2" name="total_amount"  id="total_amount"
                            value="<%= (typeof fields.total_amount !== 'undefined') ? fields.total_amount : "" %>">
+                </div>
+                <div class="col-sm-3">
+                    <button type="button" name="calculate" class="btn btn-primary" id="calculate">Calculate</button>
                 </div>
             </div>
 
@@ -206,7 +209,7 @@
             <div class="form-group row">
                 <label for="total_price" class="col-sm-3 col-form-label"></label>
                 <div class="col-sm-9">
-                    <input type="checkbox" class="form-check-input" id="same_another" checked name="same_another"/>
+                    <input type="checkbox" class="form-check-input" id="same_another"  checked name="same_another"/>
                     <button class="btn btn-primary" type="submit">Submit</button>
                 </div>
             </div>

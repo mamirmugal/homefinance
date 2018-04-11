@@ -827,6 +827,8 @@ module.exports = {
         res.view("expenses/monthly", {
           expensesDetails: expensesDetails,
           moment: moment,
+          last: (typeof req.session.last != 'undefined') ? req.session.last : null,
+          edit: (typeof req.session.edit != 'undefined') ? req.session.edit : null,
           fromDate: moment(fromDate).format('Do MMMM  YYYY'),
           toDate: moment(toDate).format('Do MMMM  YYYY'),
         })
@@ -874,7 +876,7 @@ module.exports = {
           }
         },
           {
-            $group: {_id: '$category', sum: {$sum: "$amount"}}
+            $group: {_id: '$category', sum: {$sum: "$total_amount"}}
           }
         ])
 
@@ -951,7 +953,7 @@ module.exports = {
           }
         },
           {
-            $group: {_id: '$subcategory', sum: {$sum: "$amount"}}
+            $group: {_id: '$subcategory', sum: {$sum: "$total_amount"}}
           }
         ])
 
@@ -1022,7 +1024,7 @@ module.exports = {
           }
         },
           {
-            $group: {_id: '$title', sum: {$sum: "$amount"}}
+            $group: {_id: '$title', sum: {$sum: "$total_amount"}}
           }
         ])
 
@@ -1130,7 +1132,7 @@ module.exports = {
           }
         },
           {
-            $group: {_id: '$category', sum: {$sum: "$amount"}}
+            $group: {_id: '$category', sum: {$sum: "$total_amount"}}
           }
         ])
 
@@ -1195,10 +1197,41 @@ module.exports = {
     let toDate = myProjService.formatFromDate(tDate);
     let fromDate = myProjService.formatFromDate(fDate);
 
-    res.view('expenses/weeklybarchart', {
-      toDate: toDate.toLocaleString(),
-      fromDate: fromDate.toLocaleString(),
-      arrExpWeeklyBar: arr,
+
+    // Promise to fix the native mongo command
+    let promise = new Promise((resolve, reject) => {
+
+      Expenses.native((err, collection) => {
+
+        // throw error when error
+        if (err)
+          reject(err);
+
+        collection.distinct('category', (err, rows) => {
+
+          // error then throw error
+          if (err)
+            reject(err);
+
+          // if resolved the send to next promise
+          resolve(rows);
+        });
+      });
+
+    });
+
+
+    promise.then((category) => {
+
+      res.view('expenses/weeklybarchart', {
+        toDate: toDate.toLocaleString(),
+        fromDate: fromDate.toLocaleString(),
+        arrExpWeeklyBar: arr,
+        category: category,
+      });
+
+    }).catch((error) => {
+      console.log(error)
     });
 
   }),
@@ -1240,7 +1273,7 @@ module.exports = {
           }
         },
           {
-            $group: {_id: '$category', sum: {$sum: "$amount"}}
+            $group: {_id: '$category', sum: {$sum: "$total_amount"}}
           }
         ])
           .toArray((err, rows) => {
@@ -1259,8 +1292,9 @@ module.exports = {
     // Promise returned from getting cat or subcat
     promise
       .then((cat) => {
-        if (cat.length > 0)
+        if (cat.length > 0){
           return res.json(cat);
+        }
         else
           return res.json({});
       })
@@ -1268,5 +1302,82 @@ module.exports = {
         console.log(error)
       })
   }),
+
+
+  /**
+   * getWeekly stack ajax data
+   *
+   * @author Muhammad Amir
+   */
+  getExpWeeklyStackCatSum: ((req, res) => {
+
+    let dates = myProjService.getToFromDate();
+
+    let tDate = dates.pop();
+    let fDate = dates.pop();
+
+    if (req.param('exp_to_date') && req.param('exp_from_date')) {
+      tDate = myProjService.getDateFromString(req.param('exp_to_date'));
+      fDate = myProjService.getDateFromString(req.param('exp_from_date'));
+    }
+
+
+    // Promise to fix the native mongo command
+    let promise = new Promise((resolve, reject) => {
+
+      Expenses.native((err, collection) => {
+
+        // throw error when error
+        if (err)
+          reject(err);
+
+        collection.aggregate([{
+          $match: {
+            $and: [
+              {dates: {$gte: fDate, $lte: tDate}},
+              {amount_type: 'subtracted'}
+            ]
+          }
+        },
+          {
+            $group: {_id: '$category', sum: {$sum: "$total_amount"}}
+          }
+        ])
+          .toArray((err, rows) => {
+
+            // error then throw error
+            if (err)
+              reject(err);
+
+            // if resolved the send to next promise
+            resolve(rows);
+          });
+      });
+    });
+
+
+    // Promise returned from getting cat or subcat
+    promise
+      .then((cat) => {
+        if (cat.length > 0) {
+
+          // converting data to object with key as category name and sum and value
+          // which will be used by js to show the stack barchart
+          let category = {};
+          cat.forEach(function(item){
+            category[item._id] = item.sum;
+          });
+
+          return res.json(category);
+        }
+        else
+          return res.json({});
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+  }),
+
+
 };
 

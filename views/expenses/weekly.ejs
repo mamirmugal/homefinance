@@ -37,10 +37,9 @@
 </form>
 
 <% arrExpWeekly.forEach(function (item, index){ %>
-
 <div class="d-flex mt-2 mb-5 flex-row justify-content-around align-self-stretch  mr-auto">
 
-    <div class="col-md-4">
+    <div class="col-md-10">
         <div class="d-flex">
             <div id="canvas-holder" style="width:100%">
                 <canvas id="exp-chart-area-<%=index%>"></canvas>
@@ -48,12 +47,7 @@
         </div>
 
     </div>
-    <div class="col-md-4">
+    <div class="col-md-2">
     </div>
-
-    <div class="col-md-4">
-    </div>
-
 </div>
-
 <% }) %>

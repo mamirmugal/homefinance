@@ -13,10 +13,13 @@
    * @type {{labels: string[], datasets: *[]}}
    */
   var count = 0;
+  var countStack = 0;
 
   <% arrExpWeeklyBar.forEach(function(item, index){ %>
   count += 1;
+  countStack += 1;
   getExpWeeklyBarCat('<%= item[0] %>', '<%= item[1] %>', <%= index %>);
+  getExpWeeklyStackCat('<%= item[0] %>', '<%= item[1] %>', <%= index %>);
   <% }) %>
 
   var globalTitle = [];
@@ -87,7 +90,6 @@
           var endDataSet = [];
           for (var x in obj) {
             endDataSet.push(obj[x]);
-            console.log(endDataSet)
           }
 
           // Init Barchar object
@@ -116,5 +118,117 @@
       });
 
   }
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  var category = [];
+  <% console.log(category) %>
+  <% category.forEach(function (item, index) { %>
+  category.push('<%= item %>');
+  <% }) %>
+
+  var globalTitleStack = [];
+  var objStack = {};
+
+  /**
+   * Calling weekly bar chart
+   * @param from_date
+   * @param to_date
+   * @param i
+   */
+  function getExpWeeklyStackCat(from_date, to_date, i) {
+
+    // Converting string date to object date
+    var from = new Date(from_date);
+    var to = new Date(to_date);
+
+    // breaking down date to send by ajax
+    var f = from.getDate() + "-" + (from.getMonth() + 1) + "-" + from.getFullYear();
+    var t = to.getDate() + "-" + (to.getMonth() + 1) + "-" + to.getFullYear();
+
+    $.ajax({
+      method: "get",
+      url: "/expenses/getExpWeeklyStackCatSum",
+      data: {
+        exp_from_date: f,
+        exp_to_date: t,
+        i: i,
+      }
+    })
+      .done(function (msg) {
+
+        // Pushing Date for labels for bar chart
+        globalTitleStack.push(from.getDate() + "-" + (from.getMonth() + 1) + " " + to.getDate() + "-" + (to.getMonth() + 1));
+
+        // Running through all categories
+        for (var cat in category) {
+
+          // creating object if it is not created in objStack
+          if (typeof objStack[category[cat]] == 'undefined') {
+            objStack[category[cat]] = {};
+            objStack[category[cat]].label = category[cat];
+            objStack[category[cat]].backgroundColor = color.pop();
+            objStack[category[cat]].data = [];
+          }
+
+          // if the return variable has category defined then assign the value to objStack
+          if (typeof msg[category[cat]] != 'undefined') {
+            objStack[category[cat]].data.push(msg[category[cat]])
+          }
+
+        }
+
+        // Decreasing count and when it is zero
+        // initialize canvas bar chart
+        countStack--;
+        if (countStack == 0) {
+
+          // We are assigning this to new object
+          // because the obj is object not array
+          // we are pushing data to array for the
+          //  chart.js to work
+          var endDataSetStack = [];
+          for (var x in objStack) {
+            endDataSetStack.push(objStack[x]);
+          }
+
+          var stackBarChartData = {
+            labels: globalTitleStack,
+            datasets: endDataSetStack
+          };
+
+          var ctxStack = document.getElementById('exp-stack-chart-area').getContext('2d');
+          window.myStackBar = new Chart(ctxStack, {
+            type: 'bar',
+            data: stackBarChartData,
+            options: {
+              title: {
+                display: true,
+                text: 'Monthly Stacked Bar Chart'
+              },
+              tooltips: {
+                mode: 'index',
+                intersect: false
+              },
+              responsive: true,
+              scales: {
+                xAxes: [{
+                  stacked: true,
+                }],
+                yAxes: [{
+                  stacked: true
+                }]
+              }
+            }
+          });
+
+        }
+      });
+
+  }
+
+
 </script>
 <% } %>

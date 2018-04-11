@@ -49,6 +49,32 @@
     "rgb(54, 57, 61)",
   ];
 
+  var catColor = [
+    '#423D5D',
+    '#426D5D',
+    '#B97783',
+    '#B92783',
+    '#392783',
+    '#29A09E',
+    '#79A09E',
+    '#29409E',
+    '#90409E',
+    '#CDE3CC',
+    '#77AA21',
+    '#33AA21',
+    '#1A4A77',
+    '#118A77',
+    '#DDDA51',
+    '#3199DD',
+    '#626DA7'
+  ];
+
+  $("#calculate").click(function(){
+    var amount = parseFloat($('#amount').val());
+    var total_amount = parseFloat($('#total_amount').val());
+    $("#quantity").val(total_amount / amount);
+  });
+
 </script>
 <%- partial('./bank.ejs') %>
 <%- partial('./bankchart.ejs') %>

@@ -159,11 +159,10 @@ module.exports = {
             // if resolved the send to next promise
             resolve([categories, rows]);
           });
-        })
-          .catch((error) => {
-            console.log(error)
-          });
+        });
 
+      }).catch((error) => {
+        console.log(error)
       });
 
     })
