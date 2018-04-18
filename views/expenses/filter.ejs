@@ -39,6 +39,25 @@
                 </div>
             </div>
         </div>
+
+
+        <div class="p-2">
+            <div class="form-group row">
+                <label for="exp_company_filter" class="col-sm-12 col-form-label text-center">Company</label>
+                <div class="col-sm-12">
+                    <select name="exp_company_filter" id="exp_company_filter" class="form-control">
+                        <option value="">All</option>
+                        <% company.forEach(function(items){ %>
+                        <% if(comValue !== null && comValue == items) { %>
+                        <option value="<%= items %>" selected><%= items %></option>
+                        <% } else { %>
+                        <option value="<%= items %>"><%= items %></option>
+                        <% }}) %>
+                    </select>
+                </div>
+            </div>
+        </div>
+
         <div class="p-2">
             <div class="form-group row">
                 <label for="exp_category_filter" class="col-sm-12 col-form-label text-center">Category</label>

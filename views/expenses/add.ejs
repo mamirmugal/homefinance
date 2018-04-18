@@ -40,6 +40,13 @@
         <form name="add_expenses" method="post" action="/expenses/create">
 
             <div class="form-group row">
+                <label for="salary" class="col-sm-3 col-form-label">Salary Date</label>
+                <div class="col-sm-9">
+                    <input type="checkbox" class="form-control mr-sm-2" name="salary" id="salary" value="yes" />
+                </div>
+            </div>
+
+            <div class="form-group row">
                 <label for="dates" class="col-sm-3 col-form-label">Date</label>
                 <div class="col-sm-9">
                     <input type="text" readonly class="form-control datepicker" id="dates" name="dates"

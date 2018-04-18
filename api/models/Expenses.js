@@ -16,6 +16,10 @@ module.exports = {
       required:true
     },
 
+    salary: {
+      type: 'string',
+    },
+
     paid_from: {
       type: 'string',
       enum: ['cash', 'credit_card'],
