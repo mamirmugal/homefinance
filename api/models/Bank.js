@@ -15,6 +15,10 @@ module.exports = {
       required:true
     },
 
+    salary: {
+      type: 'string',
+    },
+
     title: {
       type: 'string',
       required: true

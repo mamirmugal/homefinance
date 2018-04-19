@@ -669,11 +669,6 @@ module.exports = {
       expTitle = req.param('exp_title_filter');
     }
 
-
-    // add date range to find object for mongodb
-    obj.dates = {"$gte": fDate, "$lte": tDate};
-
-
     // getting the prev month range
     // this range will helpful to get the salary time
     let ffDate = new Date(fDate.getTime());
@@ -827,6 +822,9 @@ module.exports = {
           // setting up one day before the salary came
           tDate.setDate(tDate.getDate() - 1);
         }
+
+        // add date range to find object for mongodb
+        obj.dates = {"$gte": fDate, "$lte": tDate};
 
         let toDate = myProjService.formatFromDate(tDate);
         let fromDate = myProjService.formatFromDate(fDate);
@@ -1201,7 +1199,26 @@ module.exports = {
         });
 
       })
-      .then((arr) => {
+      .then((rows) => {
+
+        var newArr = [];
+        var next = rows.pop();
+        var prev = rows.pop();
+
+        newArr.push(prev);
+        newArr.push(next);
+
+        // Replacing with new start date and time
+        if (typeof prev != 'undefined' && typeof prev[0] != 'undefined') {
+          fDate = new Date(prev[0].dates.getTime());
+        }
+
+        // Replacing with new start date and time
+        if (typeof next != 'undefined' && typeof next[0] != 'undefined') {
+          tDate = new Date(next[0].dates.getTime());
+          // setting up one day before the salary came
+          tDate.setDate(tDate.getDate() - 1);
+        }
 
         // Promise to fix the native mongo command
         return new Promise((resolve, reject) => {
@@ -1231,9 +1248,9 @@ module.exports = {
                 if (err)
                   reject(err);
 
-                arr.push(rows);
+                newArr.push(rows);
                 // if resolved the send to next promise
-                resolve(arr);
+                resolve(newArr);
               });
 
           });
@@ -1541,11 +1558,22 @@ module.exports = {
         newDate.setDate(fDate.getDate() - 7);
         newDate.setFullYear(fDate.getFullYear());
         newDate.setMonth(fDate.getMonth());
+
         var arr = [];
+        var arrDate = null;
+        var lasttDate = null;
         while (newDate < tDate) {
           newDate.setDate(newDate.getDate() + 7)
+          arrDate = myProjService.getFirstAndLastDayOfTheWeek(newDate)
           arr.push(myProjService.getFirstAndLastDayOfTheWeek(newDate));
+          lasttDate = arrDate.pop();
+
+          if(lasttDate > tDate)
+            break;
         }
+
+        // array is passed by ref so it will be automatically fixed
+        var newArray = myProjService.fixFirstEndDate(arr, tDate, fDate);
 
         let toDate = myProjService.formatFromDate(tDate);
         let fromDate = myProjService.formatFromDate(fDate);
@@ -1784,16 +1812,26 @@ module.exports = {
 
 
         // Getting the range of dates and pushing them into array
-        let newDate = new Date();
+        let newDate = new Date(fDate.getTime());
         newDate.setDate(fDate.getDate() - 7);
         newDate.setFullYear(fDate.getFullYear());
         newDate.setMonth(fDate.getMonth());
 
         var arr = [];
+        var arrDate = null;
+        var lasttDate = null;
         while (newDate < tDate) {
           newDate.setDate(newDate.getDate() + 7)
+          arrDate = myProjService.getFirstAndLastDayOfTheWeek(newDate)
           arr.push(myProjService.getFirstAndLastDayOfTheWeek(newDate));
+          lasttDate = arrDate.pop();
+
+          if(lasttDate > tDate)
+            break;
         }
+
+        // array is passed by ref so it will be automatically fixed
+        var newArray = myProjService.fixFirstEndDate(arr, tDate, fDate);
 
         let toDate = myProjService.formatFromDate(tDate);
         let fromDate = myProjService.formatFromDate(fDate);

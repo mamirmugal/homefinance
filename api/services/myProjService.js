@@ -277,6 +277,16 @@ module.exports = {
     var first = new Date(date.getTime());
     var last = new Date(date.getTime());
 
+    first.setHours(0);
+    first.setMinutes(0);
+    first.setSeconds(0);
+    first.setMilliseconds(0);
+
+    last.setHours(0);
+    last.setMinutes(0);
+    last.setSeconds(0);
+    last.setMilliseconds(0);
+
     // Getting first day of the week
     if (first.getDay() > 0)
       first.setDate(first.getDate() - (first.getDay() - 1));
@@ -284,11 +294,14 @@ module.exports = {
       first.setDate(first.getDate());
 
     // Getting last day of the week
-    last.setDate(first.getDate() + (7 - first.getDay()));
+    //last.setDate(first.getDate() + (7 - first.getDay()));
+    last.setTime(first.getTime() + (86400000 * (7 - first.getDay())));
+
+    // first.setTime(first.getTime() - 86400000);
+    // last.setTime(first.getTime() + (86400000 * 6));
 
     return [first, last];
   },
-
 
 
   /**
@@ -311,5 +324,22 @@ module.exports = {
       amount: 'Amount',
       total_amount: 'Total Amount',
     }
+  },
+
+
+  /**
+   * This method will fix the start and end date of the weekly created date
+   *
+   * @author Muhammad Amir
+   * @param  array
+   * @param  first
+   * @param  last
+   */
+  fixFirstEndDate: (array, first, last) => {
+
+    array[0][0] = last;
+    array[array.length - 1][1] = first;
+
+    return array;
   },
 };

@@ -195,7 +195,7 @@ module.exports = {
    */
   create: ((req, res) => {
 
-    Bank.create({
+    let val = {
       dates: myProjService.parseDate(req.body.dates),
       title: req.body.title,
       category: req.body.category,
@@ -205,7 +205,13 @@ module.exports = {
       amount: req.body.amount,
       descp: req.body.descp,
       amount_type: req.body.amount_type,
-    })
+    };
+
+    if (typeof req.body.salary != "undefined") {
+      val.salary = req.body.salary;
+    }
+
+    Bank.create(val)
       .then((reqs) => {
 
         // Adding last added row to the session
@@ -349,9 +355,7 @@ module.exports = {
       res.redirect('/bank');
     }
 
-    Bank.update({
-      id: req.params.id
-    }, {
+    let val = {
       dates: myProjService.parseDate(req.body.dates),
       title: req.body.title,
       category: req.body.category,
@@ -361,7 +365,15 @@ module.exports = {
       amount: req.body.amount,
       descp: req.body.descp,
       amount_type: req.body.amount_type,
-    })
+    };
+
+    if (typeof req.body.salary != "undefined") {
+      val.salary = req.body.salary;
+    }
+
+    Bank.update({
+      id: req.params.id
+    }, val)
       .then((reqs) => {
 
         let edit = reqs.pop();
@@ -429,8 +441,6 @@ module.exports = {
       fDate = myProjService.getDateFromString(req.param('from_date'));
     }
 
-    let toDate = myProjService.formatFromDate(tDate);
-    let fromDate = myProjService.formatFromDate(fDate);
 
     /**
      * getting category if sub-category is set then
@@ -450,11 +460,21 @@ module.exports = {
       }
     }
 
-    // add date range to find object for mongodb
-    obj.dates = {"$gte": fDate, "$lte": tDate};
+    // getting the prev month range
+    // this range will helpful to get the salary time
+    let ffDate = new Date(fDate.getTime());
+    ffDate.setDate(fDate.getDate() - 7);
+    let ftDate = new Date(fDate.getTime());
+    ftDate.setDate(fDate.getDate() + 7);
+
+    // getting the next month range
+    // this range will helpful to get the salary time
+    let tfDate = new Date(tDate.getTime());
+    tfDate.setDate(tDate.getDate() - 7);
+    let ttDate = new Date(tDate.getTime());
+    ttDate.setDate(tDate.getDate() + 7);
 
 
-    // Promise to fix the native mongo command
     let promise = new Promise((resolve, reject) => {
 
       Bank.native((err, collection) => {
@@ -463,23 +483,118 @@ module.exports = {
         if (err)
           reject(err);
 
-        collection.distinct('category', (err, rows) => {
+        collection.aggregate(
+          [{
+            $match: {
+              $and: [
+                {dates: {$gte: ffDate, $lte: ftDate}},
+                {salary: 'yes'}
+              ]
+            }
+          }]
+        )
+          .toArray((err, rows) => {
 
-          // error then throw error
-          if (err)
-            reject(err);
+            // error then throw error
+            if (err)
+              reject(err);
 
-          // if resolved the send to next promise
-          resolve(rows);
-        });
+            // if resolved the send to next promise
+            resolve(rows);
+          });
+
       });
 
     });
 
-
-    // Promise returned from getting cat or subcat
     promise
-      .then((cat) => {
+      .then((prevs) => {
+
+        return new Promise((resolve, reject) => {
+          Bank.native((err, collection) => {
+
+            // throw error when error
+            if (err)
+              reject(err);
+
+            collection.aggregate([{
+              $match: {
+                $and: [
+                  {dates: {$gte: tfDate, $lte: ttDate}},
+                  {salary: 'yes'}
+                ]
+              }
+            }])
+              .toArray((err, newrows) => {
+
+                // error then throw error
+                if (err)
+                  reject(err);
+
+                let arr = [];
+                arr.push(prevs);
+                arr.push(newrows);
+
+                // if resolved the send to next promise
+                resolve(arr);
+              });
+
+          });
+        });
+
+      })
+      .then((array) => {
+
+        // Promise to fix the native mongo command
+        return new Promise((resolve, reject) => {
+
+          Bank.native((err, collection) => {
+
+            // throw error when error
+            if (err)
+              reject(err);
+
+            collection.distinct('category', (err, rows) => {
+
+              // error then throw error
+              if (err)
+                reject(err);
+
+              // console.log(array)
+
+              array.push(rows)
+              // if resolved the send to next promise
+              resolve(array);
+            });
+          });
+
+        });
+      })
+
+      .then((rows) => {
+
+        var cat = rows.pop();
+        var next = rows.pop();
+        var prev = rows.pop();
+
+        // Replacing with new start date and time
+        if (typeof prev != 'undefined' && typeof prev[0] != 'undefined') {
+          fDate = new Date(prev[0].dates.getTime());
+        }
+
+        // Replacing with new start date and time
+        if (typeof next != 'undefined' && typeof next[0] != 'undefined') {
+          tDate = new Date(next[0].dates.getTime());
+          // setting up one day before the salary came
+          tDate.setDate(tDate.getDate() - 1);
+        }
+
+        let toDate = myProjService.formatFromDate(tDate);
+        let fromDate = myProjService.formatFromDate(fDate);
+
+        // add date range to find object for mongodb
+        obj.dates = {"$gte": fDate, "$lte": tDate};
+
 
         if (obj !== null) {
           Bank.find(obj)
@@ -509,6 +624,7 @@ module.exports = {
             moment: moment
           });
         }
+
       })
       .catch((error) => {
         console.log(error)
@@ -536,7 +652,21 @@ module.exports = {
     }
 
 
-    // Promise to fix the native mongo command
+    // getting the prev month range
+    // this range will helpful to get the salary time
+    let ffDate = new Date(fDate.getTime());
+    ffDate.setDate(fDate.getDate() - 7);
+    let ftDate = new Date(fDate.getTime());
+    ftDate.setDate(fDate.getDate() + 7);
+
+    // getting the next month range
+    // this range will helpful to get the salary time
+    let tfDate = new Date(tDate.getTime());
+    tfDate.setDate(tDate.getDate() - 7);
+    let ttDate = new Date(tDate.getTime());
+    ttDate.setDate(tDate.getDate() + 7);
+
+
     let promise = new Promise((resolve, reject) => {
 
       Bank.native((err, collection) => {
@@ -545,19 +675,16 @@ module.exports = {
         if (err)
           reject(err);
 
-        collection.aggregate([{
-          $match: {
-            $and: [
-              {dates: {$gte: fDate, $lte: tDate}},
-              {amount_type: 'subtracted'}
-            ]
-          }
-        },
-          {
-            $group: {_id: '$category', sum: {$sum: "$amount"}}
-          }
-        ])
-
+        collection.aggregate(
+          [{
+            $match: {
+              $and: [
+                {dates: {$gte: ffDate, $lte: ftDate}},
+                {salary: 'yes'}
+              ]
+            }
+          }]
+        )
           .toArray((err, rows) => {
 
             // error then throw error
@@ -572,12 +699,104 @@ module.exports = {
 
     });
 
-    let toDate = myProjService.formatFromDate(tDate);
-    let fromDate = myProjService.formatFromDate(fDate);
-
-    // Promise returned from getting cat or subcat
     promise
-      .then((cat) => {
+      .then((prevs) => {
+
+        return new Promise((resolve, reject) => {
+          Bank.native((err, collection) => {
+
+            // throw error when error
+            if (err)
+              reject(err);
+
+            collection.aggregate([{
+              $match: {
+                $and: [
+                  {dates: {$gte: tfDate, $lte: ttDate}},
+                  {salary: 'yes'}
+                ]
+              }
+            }])
+              .toArray((err, newrows) => {
+
+                // error then throw error
+                if (err)
+                  reject(err);
+
+                let arr = [];
+                arr.push(prevs);
+                arr.push(newrows);
+
+                // if resolved the send to next promise
+                resolve(arr);
+              });
+
+          });
+        });
+
+      })
+      .then((array) => {
+
+
+
+        // Promise to fix the native mongo command
+        return new Promise((resolve, reject) => {
+
+          Bank.native((err, collection) => {
+
+            // throw error when error
+            if (err)
+              reject(err);
+
+            collection.aggregate([{
+              $match: {
+                $and: [
+                  {dates: {$gte: fDate, $lte: tDate}},
+                  {amount_type: 'subtracted'}
+                ]
+              }
+            },
+              {
+                $group: {_id: '$category', sum: {$sum: "$amount"}}
+              }
+            ])
+
+              .toArray((err, rows) => {
+
+                // error then throw error
+                if (err)
+                  reject(err);
+
+                array.push(rows)
+
+                // if resolved the send to next promise
+                resolve(array);
+              });
+
+          });
+        });
+
+      })
+      .then((rows) => {
+
+        var cat = rows.pop();
+        var next = rows.pop();
+        var prev = rows.pop();
+
+        // Replacing with new start date and time
+        if (typeof prev != 'undefined' && typeof prev[0] != 'undefined') {
+          fDate = new Date(prev[0].dates.getTime());
+        }
+
+        // Replacing with new start date and time
+        if (typeof next != 'undefined' && typeof next[0] != 'undefined') {
+          tDate = new Date(next[0].dates.getTime());
+          // setting up one day before the salary came
+          tDate.setDate(tDate.getDate() - 1);
+        }
+
+        let toDate = myProjService.formatFromDate(tDate);
+        let fromDate = myProjService.formatFromDate(fDate);
 
         res.view('bank/chart', {
           chart_filter: cat,
@@ -600,21 +819,128 @@ module.exports = {
    */
   monthly: ((req, res) => {
 
-    [fromDate, toDate] = myProjService.getToFromDate();
+    [fDate, tDate] = myProjService.getToFromDate();
 
 
-    Bank.find({
-      dates: {"$gte": fromDate, "$lte": toDate}
-    })
-      .then((bankDetails) => {
+    // getting the prev month range
+    // this range will helpful to get the salary time
+    let ffDate = new Date(fDate.getTime());
+    ffDate.setDate(fDate.getDate() - 7);
+    let ftDate = new Date(fDate.getTime());
+    ftDate.setDate(fDate.getDate() + 7);
 
-        res.view("bank/monthly", {
-          bankDetails: bankDetails,
-          moment: moment,
-          fromDate: moment(fromDate).format('Do MMMM  YYYY'),
-          toDate: moment(toDate).format('Do MMMM  YYYY'),
-          bankAmountType: myProjService.getBankAmountType(),
+    // getting the next month range
+    // this range will helpful to get the salary time
+    let tfDate = new Date(tDate.getTime());
+    tfDate.setDate(tDate.getDate() - 7);
+    let ttDate = new Date(tDate.getTime());
+    ttDate.setDate(tDate.getDate() + 7);
+
+
+    let promise = new Promise((resolve, reject) => {
+
+      Bank.native((err, collection) => {
+
+        // throw error when error
+        if (err)
+          reject(err);
+
+        collection.aggregate(
+          [{
+            $match: {
+              $and: [
+                {dates: {$gte: ffDate, $lte: ftDate}},
+                {salary: 'yes'}
+              ]
+            }
+          }]
+        )
+          .toArray((err, rows) => {
+
+            // error then throw error
+            if (err)
+              reject(err);
+
+            // if resolved the send to next promise
+            resolve(rows);
+          });
+
+      });
+
+    });
+
+    promise
+      .then((prevs) => {
+
+        return new Promise((resolve, reject) => {
+          Bank.native((err, collection) => {
+
+            // throw error when error
+            if (err)
+              reject(err);
+
+            collection.aggregate([{
+              $match: {
+                $and: [
+                  {dates: {$gte: tfDate, $lte: ttDate}},
+                  {salary: 'yes'}
+                ]
+              }
+            }])
+              .toArray((err, newrows) => {
+
+                // error then throw error
+                if (err)
+                  reject(err);
+
+                let arr = [];
+                arr.push(prevs);
+                arr.push(newrows);
+
+                // if resolved the send to next promise
+                resolve(arr);
+              });
+
+          });
+        });
+
+      })
+      .then((rows) => {
+
+        var next = rows.pop();
+        var prev = rows.pop();
+
+        // Replacing with new start date and time
+        if (typeof prev != 'undefined' && typeof prev[0] != 'undefined') {
+          fDate = new Date(prev[0].dates.getTime());
+        }
+
+        // Replacing with new start date and time
+        if (typeof next != 'undefined' && typeof next[0] != 'undefined') {
+          tDate = new Date(next[0].dates.getTime());
+          // setting up one day before the salary came
+          tDate.setDate(tDate.getDate() - 1);
+        }
+
+
+        Bank.find({
+          dates: {"$gte": fDate, "$lte": tDate}
         })
+          .sort({dates: 'ASC'})
+          .then((bankDetails) => {
+
+            res.view("bank/monthly", {
+              bankDetails: bankDetails,
+              moment: moment,
+              fromDate: moment(fDate).format('Do MMMM  YYYY'),
+              toDate: moment(tDate).format('Do MMMM  YYYY'),
+              bankAmountType: myProjService.getBankAmountType(),
+            })
+          })
+          .catch((error) => {
+            console.log(error)
+          });
+
       })
       .catch((error) => {
         console.log(error)
@@ -825,25 +1151,130 @@ module.exports = {
       fDate = myProjService.getDateFromString(req.param('from_date'));
     }
 
-    // Getting the range of dates and pushing them into array
-    let newDate = new Date();
-    newDate.setDate(fDate.getDate() - 7);
-    newDate.setFullYear(fDate.getFullYear());
-    newDate.setMonth(fDate.getMonth());
-    var arr = [];
-    while (newDate < tDate) {
-      newDate.setDate(newDate.getDate() + 7)
-      arr.push(myProjService.getFirstAndLastDayOfTheWeek(newDate));
-    }
+    // getting the prev month range
+    // this range will helpful to get the salary time
+    let ffDate = new Date(fDate.getTime());
+    ffDate.setDate(fDate.getDate() - 7);
+    let ftDate = new Date(fDate.getTime());
+    ftDate.setDate(fDate.getDate() + 7);
 
-    let toDate = myProjService.formatFromDate(tDate);
-    let fromDate = myProjService.formatFromDate(fDate);
+    // getting the next month range
+    // this range will helpful to get the salary time
+    let tfDate = new Date(tDate.getTime());
+    tfDate.setDate(tDate.getDate() - 7);
+    let ttDate = new Date(tDate.getTime());
+    ttDate.setDate(tDate.getDate() + 7);
 
-    res.view('bank/weekly', {
-      toDate: toDate,
-      fromDate: fromDate,
-      arrWeekly: arr,
+
+    let promise = new Promise((resolve, reject) => {
+
+      Bank.native((err, collection) => {
+
+        // throw error when error
+        if (err)
+          reject(err);
+
+        collection.aggregate(
+          [{
+            $match: {
+              $and: [
+                {dates: {$gte: ffDate, $lte: ftDate}},
+                {salary: 'yes'}
+              ]
+            }
+          }]
+        )
+          .toArray((err, rows) => {
+
+            // error then throw error
+            if (err)
+              reject(err);
+
+            // if resolved the send to next promise
+            resolve(rows);
+          });
+
+      });
+
     });
+
+    promise
+      .then((prevs) => {
+
+        return new Promise((resolve, reject) => {
+          Bank.native((err, collection) => {
+
+            // throw error when error
+            if (err)
+              reject(err);
+
+            collection.aggregate([{
+              $match: {
+                $and: [
+                  {dates: {$gte: tfDate, $lte: ttDate}},
+                  {salary: 'yes'}
+                ]
+              }
+            }])
+              .toArray((err, newrows) => {
+
+                // error then throw error
+                if (err)
+                  reject(err);
+
+                let arr = [];
+                arr.push(prevs);
+                arr.push(newrows);
+
+                // if resolved the send to next promise
+                resolve(arr);
+              });
+
+          });
+        });
+
+      })
+      .then((rows) => {
+
+        var next = rows.pop();
+        var prev = rows.pop();
+
+        // Replacing with new start date and time
+        if (typeof prev != 'undefined' && typeof prev[0] != 'undefined') {
+          fDate = new Date(prev[0].dates.getTime());
+        }
+
+        // Replacing with new start date and time
+        if (typeof next != 'undefined' && typeof next[0] != 'undefined') {
+          tDate = new Date(next[0].dates.getTime());
+          // setting up one day before the salary came
+          tDate.setDate(tDate.getDate() - 1);
+        }
+
+
+        // Getting the range of dates and pushing them into array
+        let newDate = new Date();
+        newDate.setDate(fDate.getDate() - 7);
+        newDate.setFullYear(fDate.getFullYear());
+        newDate.setMonth(fDate.getMonth());
+        var arr = [];
+        while (newDate < tDate) {
+          newDate.setDate(newDate.getDate() + 7)
+          arr.push(myProjService.getFirstAndLastDayOfTheWeek(newDate));
+        }
+
+        let toDate = myProjService.formatFromDate(tDate);
+        let fromDate = myProjService.formatFromDate(fDate);
+
+        res.view('bank/weekly', {
+          toDate: toDate,
+          fromDate: fromDate,
+          arrWeekly: arr,
+        });
+
+      }).catch((error) => {
+      console.log(error)
+    })
 
   }),
 
@@ -933,26 +1364,131 @@ module.exports = {
       fDate = myProjService.getDateFromString(req.param('from_date'));
     }
 
-    // Getting the range of dates and pushing them into array
-    let newDate = new Date();
-    newDate.setDate(fDate.getDate() - 7);
-    newDate.setFullYear(fDate.getFullYear());
-    newDate.setMonth(fDate.getMonth());
 
-    var arr = [];
-    while (newDate < tDate) {
-      newDate.setDate(newDate.getDate() + 7)
-      arr.push(myProjService.getFirstAndLastDayOfTheWeek(newDate));
-    }
+    // getting the prev month range
+    // this range will helpful to get the salary time
+    let ffDate = new Date(fDate.getTime());
+    ffDate.setDate(fDate.getDate() - 7);
+    let ftDate = new Date(fDate.getTime());
+    ftDate.setDate(fDate.getDate() + 7);
 
-    let toDate = myProjService.formatFromDate(tDate);
-    let fromDate = myProjService.formatFromDate(fDate);
+    // getting the next month range
+    // this range will helpful to get the salary time
+    let tfDate = new Date(tDate.getTime());
+    tfDate.setDate(tDate.getDate() - 7);
+    let ttDate = new Date(tDate.getTime());
+    ttDate.setDate(tDate.getDate() + 7);
 
-    res.view('bank/weeklybarchart', {
-      toDate: toDate.toLocaleString(),
-      fromDate: fromDate.toLocaleString(),
-      arrWeeklyBar: arr,
+
+    let promise = new Promise((resolve, reject) => {
+
+      Bank.native((err, collection) => {
+
+        // throw error when error
+        if (err)
+          reject(err);
+
+        collection.aggregate(
+          [{
+            $match: {
+              $and: [
+                {dates: {$gte: ffDate, $lte: ftDate}},
+                {salary: 'yes'}
+              ]
+            }
+          }]
+        )
+          .toArray((err, rows) => {
+
+            // error then throw error
+            if (err)
+              reject(err);
+
+            // if resolved the send to next promise
+            resolve(rows);
+          });
+
+      });
+
     });
+
+    promise
+      .then((prevs) => {
+
+        return new Promise((resolve, reject) => {
+          Bank.native((err, collection) => {
+
+            // throw error when error
+            if (err)
+              reject(err);
+
+            collection.aggregate([{
+              $match: {
+                $and: [
+                  {dates: {$gte: tfDate, $lte: ttDate}},
+                  {salary: 'yes'}
+                ]
+              }
+            }])
+              .toArray((err, newrows) => {
+
+                // error then throw error
+                if (err)
+                  reject(err);
+
+                let arr = [];
+                arr.push(prevs);
+                arr.push(newrows);
+
+                // if resolved the send to next promise
+                resolve(arr);
+              });
+
+          });
+        });
+
+      })
+      .then((rows) => {
+
+        var next = rows.pop();
+        var prev = rows.pop();
+
+        // Replacing with new start date and time
+        if (typeof prev != 'undefined' && typeof prev[0] != 'undefined') {
+          fDate = new Date(prev[0].dates.getTime());
+        }
+
+        // Replacing with new start date and time
+        if (typeof next != 'undefined' && typeof next[0] != 'undefined') {
+          tDate = new Date(next[0].dates.getTime());
+          // setting up one day before the salary came
+          tDate.setDate(tDate.getDate() - 1);
+        }
+
+        // Getting the range of dates and pushing them into array
+        let newDate = new Date();
+        newDate.setDate(fDate.getDate() - 7);
+        newDate.setFullYear(fDate.getFullYear());
+        newDate.setMonth(fDate.getMonth());
+
+        var arr = [];
+        while (newDate < tDate) {
+          newDate.setDate(newDate.getDate() + 7)
+          arr.push(myProjService.getFirstAndLastDayOfTheWeek(newDate));
+        }
+
+        let toDate = myProjService.formatFromDate(tDate);
+        let fromDate = myProjService.formatFromDate(fDate);
+
+        res.view('bank/weeklybarchart', {
+          toDate: toDate.toLocaleString(),
+          fromDate: fromDate.toLocaleString(),
+          arrWeeklyBar: arr,
+        });
+      })
+      .catch((error) => {
+        console.log(error)
+      })
 
   }),
 
