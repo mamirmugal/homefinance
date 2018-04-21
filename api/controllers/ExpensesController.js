@@ -1293,6 +1293,93 @@ module.exports = {
 
 
   /**
+   * Chart page
+   *
+   * @author Muhammad Amir
+   */
+  chartsimple: ((req, res) => {
+
+    let dates = myProjService.getToFromDate();
+
+    let tDate = dates.pop();
+    let fDate = dates.pop();
+
+    if (req.param('exp_to_date') && req.param('exp_from_date')) {
+      tDate = myProjService.getDateFromString(req.param('exp_to_date'));
+      fDate = myProjService.getDateFromString(req.param('exp_from_date'));
+    }
+
+    // Replacing with new start date and time
+    if (typeof prev != 'undefined' && typeof prev[0] != 'undefined') {
+      fDate = new Date(prev[0].dates.getTime());
+    }
+
+    // Replacing with new start date and time
+    if (typeof next != 'undefined' && typeof next[0] != 'undefined') {
+      tDate = new Date(next[0].dates.getTime());
+      // setting up one day before the salary came
+      tDate.setDate(tDate.getDate() - 1);
+    }
+
+
+    let toDate = myProjService.formatFromDate(tDate);
+    let fromDate = myProjService.formatFromDate(fDate);
+
+
+    // Promise to fix the native mongo command
+    let promise = new Promise((resolve, reject) => {
+
+      Expenses.native((err, collection) => {
+
+        // throw error when error
+        if (err)
+          reject(err);
+
+        collection.aggregate([{
+          $match: {
+            $and: [
+              {dates: {$gte: fDate, $lte: tDate}},
+              {amount_type: 'subtracted'}
+            ]
+          }
+        },
+          {
+            $group: {_id: '$category', sum: {$sum: "$total_amount"}}
+          }
+        ])
+
+          .toArray((err, rows) => {
+
+            // error then throw error
+            if (err)
+              reject(err);
+
+            // if resolved the send to next promise
+            resolve(rows);
+          });
+
+      });
+
+    });
+
+    promise
+      .then((cat) => {
+
+        res.view('expenses/chartsimple', {
+          chart_exp_filter: cat,
+          toDate: toDate,
+          fromDate: fromDate,
+        });
+
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+
+  }),
+
+
+  /**
    * Getting sub category form expenses collections
    *
    * @author Muhammad Amir

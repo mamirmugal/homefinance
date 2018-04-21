@@ -130,6 +130,7 @@
 
   var globalTitleStack = [];
   var objStack = {};
+  var getExpLinkArray = [];
 
   /**
    * Calling weekly bar chart
@@ -160,6 +161,11 @@
 
         // Pushing Date for labels for bar chart
         globalTitleStack.push(from.getDate() + "-" + (from.getMonth() + 1) + " " + to.getDate() + "-" + (to.getMonth() + 1));
+
+        getExpLinkArray.push({
+          from: from.getDate() + "-" + (from.getMonth() + 1) + "-" + (from.getFullYear()),
+          to: to.getDate() + "-" + (to.getMonth() + 1) + "-" + (to.getFullYear())
+        });
 
         // Running through all categories
         for (var cat in category) {
@@ -219,6 +225,18 @@
                 yAxes: [{
                   stacked: true
                 }]
+              },
+              onClick: function (one, two) {
+
+                if (typeof two[0] !== 'undefined') {
+                  var index = getExpLinkArray[two[0]._index];
+
+                  window.open("/expenses/chartsimple?exp_from_date=" + index.from + "&exp_to_date=" + index.to, '_blank');
+
+                  // $("#showExp").attr('src', "/expenses/chartsimple?exp_from_date=" + index.from + "&exp_to_date=" + index.to)
+                  // http://192.168.99.100:1337/expenses/chart?exp_from_date=15-4-2018&exp_to_date=14-5-2018
+                }
+
               }
             }
           });
