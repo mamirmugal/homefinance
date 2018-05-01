@@ -1075,6 +1075,7 @@ module.exports = {
         Expenses.find({
           dates: {"$gte": fDate, "$lte": tDate}
         })
+          .sort({dates: 'ASC'})
           .then((expensesDetails) => {
 
             res.view("expenses/monthly", {

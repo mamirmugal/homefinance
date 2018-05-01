@@ -182,7 +182,9 @@
           if (typeof msg[category[cat]] != 'undefined') {
             objStack[category[cat]].data.push(msg[category[cat]])
           }
-
+          else{
+            objStack[category[cat]].data.push(0)
+          }
         }
 
         // Decreasing count and when it is zero

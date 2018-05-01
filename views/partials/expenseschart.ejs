@@ -3,11 +3,11 @@
     var expDataes = [];
     var expDataLabels = [];
     var expSetColors = [];
-
+    var expColor = shuffle(color.slice());
     <% chart_exp_filter.forEach(function(item, index){ %>
     expDataes.push(<%= item.sum %>)
     expDataLabels.push('<%= item._id %>')
-    expSetColors.push(color[getRandomInt(0, color.length)])
+    expSetColors.push(expColor.pop())
     <% }) %>
 
     var configExpMain = {
@@ -49,11 +49,7 @@
 
 
     function getExpSubCategories(cat) {
-      console.log({
-        cat: cat,
-        from_date: $("#exp_from_date").val(),
-        to_date: $("#exp_to_date").val(),
-      })
+
       $.ajax({
         method: "get",
         url: "/expenses/getExpSubCatSum",
@@ -68,11 +64,12 @@
           var expSubCatDataSet = [];
           var expSubCatDataSetLabels = [];
           var expSubCatDataColor = [];
+          var expColors = shuffle(color.slice());
           for (var x in msg) {
 
             expSubCatDataSet.push(msg[x].sum)
             expSubCatDataSetLabels.push(msg[x]._id)
-            expSubCatDataColor.push(color[getRandomInt(0, color.length)])
+            expSubCatDataColor.push(expColors.pop())
 
           }
           var expConfigSecond = {
@@ -162,11 +159,12 @@
           var dataSetExpTitle = [];
           var dataSetExpTitleLabels = [];
           var dataSetExpTitleColor = [];
+          var expColorTitle = shuffle(color.slice());
           for (var x in msg) {
 
             dataSetExpTitle.push(msg[x].sum)
             dataSetExpTitleLabels.push(msg[x]._id)
-            dataSetExpTitleColor.push(color[getRandomInt(0, color.length)])
+            dataSetExpTitleColor.push(expColorTitle.pop())
 
           }
           var expConfigThird = {
