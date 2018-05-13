@@ -614,6 +614,8 @@ module.exports = {
     let sendObj = null;
     let subCatValue = null;
     let productType = null;
+    let searchTitleValue = "";
+    let where = null;
     let dates = myProjService.getToFromDate();
 
     let tDate = dates.pop();
@@ -667,6 +669,17 @@ module.exports = {
       obj.title = req.param('exp_title_filter');
 
       expTitle = req.param('exp_title_filter');
+    }
+
+    /**
+     * getting title form query string
+     */
+    if (req.param('search_title')) {
+
+      where = {
+        title: {like: "%" + req.param('search_title') + "%"}
+      }
+      searchTitleValue = req.param('search_title');
     }
 
     // getting the prev month range
@@ -839,24 +852,47 @@ module.exports = {
           expTitle: expTitle,
           productType: productType,
           fromDate: fromDate,
+          searchTitleValue: searchTitleValue,
           moment: moment
         };
 
         if (obj !== null) {
-          Expenses.find(obj)
-            .sort({dates: 'ASC'})
-            .then((rows) => {
 
-              sendObj.expensesDetails = rows;
-              sendObj.last = (typeof req.session.last != 'undefined') ? req.session.last : null;
-              sendObj.edit = (typeof req.session.edit != 'undefined') ? req.session.edit : null;
+          if (where === null) {
 
-              res.view('expenses/filter', sendObj);
+            Expenses.find(obj)
+              .sort({dates: 'ASC'})
+              .then((rows) => {
 
-            })
-            .catch((error) => {
-              console.log(error)
-            });
+                sendObj.expensesDetails = rows;
+                sendObj.last = (typeof req.session.last != 'undefined') ? req.session.last : null;
+                sendObj.edit = (typeof req.session.edit != 'undefined') ? req.session.edit : null;
+
+                res.view('expenses/filter', sendObj);
+
+              })
+              .catch((error) => {
+                console.log(error)
+              });
+          }
+          else {
+            Expenses.find(obj)
+              .where(where)
+              .sort({dates: 'ASC'})
+              .then((rows) => {
+
+                sendObj.expensesDetails = rows;
+                sendObj.last = (typeof req.session.last != 'undefined') ? req.session.last : null;
+                sendObj.edit = (typeof req.session.edit != 'undefined') ? req.session.edit : null;
+
+
+                res.view('expenses/filter', sendObj);
+
+              })
+              .catch((error) => {
+                console.log(error)
+              });
+          }
         }
         else {
 
@@ -1656,7 +1692,7 @@ module.exports = {
           arr.push(myProjService.getFirstAndLastDayOfTheWeek(newDate));
           lasttDate = arrDate.pop();
 
-          if(lasttDate > tDate)
+          if (lasttDate > tDate)
             break;
         }
 
@@ -1914,7 +1950,7 @@ module.exports = {
           arr.push(myProjService.getFirstAndLastDayOfTheWeek(newDate));
           lasttDate = arrDate.pop();
 
-          if(lasttDate > tDate)
+          if (lasttDate > tDate)
             break;
         }
 
