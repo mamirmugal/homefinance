@@ -116,5 +116,6 @@ npm-debug.log
 nbproject
 .idea
 .node_history
-
+bkup.sh
 backup
+package-lock.json
