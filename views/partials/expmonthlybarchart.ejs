@@ -1,0 +1,157 @@
+<% if(typeof arrExpMonthlyBar != 'undefined'){ %>
+<script>
+
+  /**
+   * Labels will be monthly date
+   *
+   * dataset will be categories
+   *
+   * get category value by month
+   *
+   * get ajax call to first month cat values, put them in multiple array
+   *
+   * @type {{labels: string[], datasets: *[]}}
+   */
+  var count = 0;
+  var countStack = 0;
+
+  <% arrExpMonthlyBar.forEach(function(item, index){ %>
+  count += 1;
+  countStack += 1;
+  getExpMonthlyStackCat('<%= item[0] %>', '<%= item[1] %>', <%= index %>);
+  <% }) %>
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  var category = [];
+  <% category.forEach(function (item, index) { %>
+  category.push('<%= item %>');
+  <% }) %>
+
+  var globalTitleStack = [];
+  var objStack = {};
+  var getExpLinkArray = [];
+
+  /**
+   * Calling monthly bar chart
+   * @param from_date
+   * @param to_date
+   * @param i
+   */
+  function getExpMonthlyStackCat(from_date, to_date, i) {
+
+    // Converting string date to object date
+    var from = new Date(from_date);
+    var to = new Date(to_date);
+
+    // breaking down date to send by ajax
+    var f = from.getDate() + "-" + (from.getMonth() + 1) + "-" + from.getFullYear();
+    var t = to.getDate() + "-" + (to.getMonth() + 1) + "-" + to.getFullYear();
+
+    $.ajax({
+      method: "get",
+      url: "/expenses/getExpMonthlyStackCatSum",
+      data: {
+        exp_from_date: f,
+        exp_to_date: t,
+        i: i,
+      }
+    })
+      .done(function (msg) {
+
+        // Pushing Date for labels for bar chart
+        globalTitleStack.push((monthNamesShort[to.getMonth()]) + "-" + to.getFullYear());
+
+        getExpLinkArray.push({
+          from: from.getDate() + "-" + (from.getMonth() + 1) + "-" + (from.getFullYear()),
+          to: to.getDate() + "-" + (to.getMonth() + 1) + "-" + (to.getFullYear())
+        });
+
+        // Running through all categories
+        for (var cat in category) {
+
+          // creating object if it is not created in objStack
+          if (typeof objStack[category[cat]] == 'undefined') {
+            objStack[category[cat]] = {};
+            objStack[category[cat]].label = category[cat];
+            objStack[category[cat]].backgroundColor = color.pop();
+            objStack[category[cat]].data = [];
+          }
+
+          // if the return variable has category defined then assign the value to objStack
+          if (typeof msg[category[cat]] != 'undefined') {
+            objStack[category[cat]].data.push(msg[category[cat]])
+          }
+          else {
+            objStack[category[cat]].data.push(0)
+          }
+        }
+
+        // Decreasing count and when it is zero
+        // initialize canvas bar chart
+        countStack--;
+        if (countStack == 0) {
+
+          // We are assigning this to new object
+          // because the obj is object not array
+          // we are pushing data to array for the
+          //  chart.js to work
+          var endDataSetStack = [];
+          for (var x in objStack) {
+            endDataSetStack.push(objStack[x]);
+          }
+
+          var stackBarChartData = {
+            labels: globalTitleStack,
+            datasets: endDataSetStack
+          };
+
+
+          var ctxStack = document.getElementById('exp-stack-chart-area').getContext('2d');
+          window.myStackBar = new Chart(ctxStack, {
+            type: 'bar',
+            data: stackBarChartData,
+            options: {
+              title: {
+                display: true,
+                text: 'Monthly Stacked Bar Chart'
+              },
+              tooltips: {
+                mode: 'index',
+                intersect: false
+              },
+              responsive: true,
+              scales: {
+                xAxes: [{
+                  stacked: true,
+                }],
+                yAxes: [{
+                  stacked: true
+                }]
+              },
+              onClick: function (one, two) {
+
+                if (typeof two[0] !== 'undefined') {
+                  lett = two[0]
+                  var index = getExpLinkArray[two[0]._index];
+
+                  window.open("/expenses/chartsimple?exp_from_date=" + index.from + "&exp_to_date=" + index.to, '_blank');
+
+                  // $("#showExp").attr('src', "/expenses/chartsimple?exp_from_date=" + index.from + "&exp_to_date=" + index.to)
+                  // http://192.168.99.100:1337/expenses/chart?exp_from_date=15-4-2018&exp_to_date=14-5-2018
+                }
+
+              }
+            }
+          });
+
+        }
+      });
+
+  }
+
+
+</script>
+<% } %>

@@ -1,7 +1,6 @@
-<%- partial('./header.ejs') %>
 
 
-<form name="filter_form" id="filter_form" method="get" action="/expenses/weeklybar">
+<form name="filter_form" id="filter_form" method="get" action="/expenses/monthlybar">
     <div class="d-flex mt-3 flex-row justify-content-around align-self-stretch  mr-auto">
         <div class="p1">
 
@@ -46,36 +45,6 @@
         <div class="d-flex">
             <div id="canvas-holder" style="width:100%">
                 <canvas id="exp-stack-chart-area"></canvas>
-            </div>
-        </div>
-
-    </div>
-    <div class="col-md-1">
-    </div>
-
-</div><div class="d-flex mt-2 mb-5 flex-row justify-content-around align-self-stretch  mr-auto">
-
-    <div class="col-md-1">
-    </div>
-    <div class="col-md-10">
-        <div class="d-flex">
-            <iframe id="showExp" width="95%" hidden="auto"></iframe>
-        </div>
-
-    </div>
-    <div class="col-md-1">
-    </div>
-
-</div>
-
-<div class="d-flex mt-2 mb-5 flex-row justify-content-around align-self-stretch  mr-auto">
-
-    <div class="col-md-1">
-    </div>
-    <div class="col-md-10">
-        <div class="d-flex">
-            <div id="canvas-holder" style="width:100%">
-                <canvas id="exp-bar-chart-area"></canvas>
             </div>
         </div>
 
