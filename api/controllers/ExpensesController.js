@@ -2128,67 +2128,98 @@ module.exports = {
     let tDate = dates.pop();
     let fDate = dates.pop();
 
-    // if exp date is passed then convert it to date
     if (req.param('exp_to_date') && req.param('exp_from_date')) {
       tDate = myProjService.getDateFromString(req.param('exp_to_date'));
       fDate = myProjService.getDateFromString(req.param('exp_from_date'));
     }
 
 
-    // Getting all the categories from the db
+    // getting the prev month range
+    // this range will helpful to get the salary time
+    let ffDate = new Date(fDate.getTime());
+    ffDate.setDate(fDate.getDate() - 7);
+
+    // getting the next month range
+    // this range will helpful to get the salary time
+    let ttDate = new Date(tDate.getTime());
+    ttDate.setDate(tDate.getDate() + 7);
+
+
+    // db.expenses.find({ salary: {$exists:1}, dates: {$gte: "2018-02-06T13:00:00.000Z", $lte: "2018-08-21T14:00:00.000Z"}});
     let promise = new Promise((resolve, reject) => {
 
-      Expenses.native((err, collection) => {
+      // getting only the salary dates from specific date range
+      Expenses.find(
+        {
+          salary: {$exists:1},
+          dates: {$gte: ffDate, $lte: ttDate}
+        },
+        {
+          fields: ['dates']
+        })
+        .then((rows) => {
 
-        // throw error when error
-        if (err)
-          reject(err);
+          resolve([rows]);
 
-        collection.distinct('category', (err, rows) => {
+      }).catch((error) => {
+        reject(error);
+      })
 
-          // error then throw error
-          if (err)
-            reject(err);
-
-          // if resolved the send to next promise
-          resolve(rows);
-        });
-      });
 
     });
 
-    promise.then((category) => {
+    promise
+      .then((arr) => {
 
-      // getting the current value of the month
-      let fMonth = fDate.getMonth();
-      let tMonth = tDate.getMonth();
+        // Promise to fix the native mongo command
+        return new Promise((resolve, reject) => {
 
-      let array = [];
-      // looping through from date to to date
-      while (fMonth < tMonth) {
+          Expenses.native((err, collection) => {
 
-        // getting the first day of the month
-        let firstDay = new Date(fDate.getFullYear(), fMonth, 1);
-        // getting last day of the month
-        let lastDay = new Date(fDate.getFullYear(), fMonth+1, 0);
+            // throw error when error
+            if (err)
+              reject(err);
 
-        array.push([firstDay, lastDay]);
+            collection.distinct('category', (err, rows) => {
 
-        fMonth++;
-      }
+              // error then throw error
+              if (err)
+                reject(err);
 
-      // converting to specific date format to show in calender
-      let toDate = myProjService.formatFromDate(tDate);
-      let fromDate = myProjService.formatFromDate(fDate);
+              arr.push(rows)
+              // if resolved the send to next promise
+              resolve(arr);
+            });
+          });
 
-      res.view('expenses/monthlybarchart', {
-        toDate: toDate.toLocaleString(),
-        fromDate: fromDate.toLocaleString(),
-        arrExpMonthlyBar: array,
-        category: category,
-      });
+        });
+      })
+      .then((rows) => {
 
-    }).catch((error) => {
+        var category = rows.pop();
+        var monthlyDates = rows.pop();
+
+        let dates = [];
+        // creating dates arrays for bar chart
+        for(let x=0; x<monthlyDates.length-1; x++){
+          dates.push([
+            new Date(monthlyDates[x].dates.getTime()),
+            new Date(monthlyDates[x+1].dates.getTime())
+          ]);
+        }
+
+        // converting the date to show on browser
+        let toDate = myProjService.formatFromDate(tDate);
+        let fromDate = myProjService.formatFromDate(fDate);
+
+        res.view('expenses/monthlybarchart', {
+          toDate: toDate.toLocaleString(),
+          fromDate: fromDate.toLocaleString(),
+          arrExpWeeklyBar: dates,
+          category: category,
+        });
+
+      }).catch((error) => {
       console.log(error)
     });
 
