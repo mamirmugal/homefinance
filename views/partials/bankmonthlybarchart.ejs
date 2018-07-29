@@ -1,4 +1,4 @@
-<% if(typeof arrExpMonthlyBar != 'undefined'){ %>
+<% if(typeof arrBankMonthlyBar != 'undefined'){ %>
 <script>
 
   /**
@@ -15,10 +15,10 @@
   var count = 0;
   var countStack = 0;
 
-  <% arrExpMonthlyBar.forEach(function(item, index){ %>
+  <% arrBankMonthlyBar.forEach(function(item, index){ %>
   count += 1;
   countStack += 1;
-  getExpMonthlyStackCat('<%= item[0] %>', '<%= item[1] %>', <%= index %>);
+  getBankMonthlyStackCatSum('<%= item[0] %>', '<%= item[1] %>', <%= index %>);
   <% }) %>
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -40,7 +40,7 @@
    * @param to_date
    * @param i
    */
-  function getExpMonthlyStackCat(from_date, to_date, i) {
+  function getBankMonthlyStackCatSum(from_date, to_date, i) {
 
     // Converting string date to object date
     var from = new Date(from_date);
@@ -52,7 +52,7 @@
 
     $.ajax({
       method: "get",
-      url: "/expenses/getExpMonthlyStackCatSum",
+      url: "/bank/getBankMonthlyStackCatSum",
       data: {
         exp_from_date: f,
         exp_to_date: t,
@@ -62,8 +62,8 @@
       .done(function (msg) {
 
         // Pushing Date for labels for bar chart
+        //globalTitleStack.push(from.getDate() + "-" + (from.getMonth() + 1) + " " + to.getDate() + "-" + (to.getMonth() + 1));
         globalTitleStack.push(from.getDate() + "-" + (monthNamesShort[from.getMonth()]) + " " + to.getDate() + "-" + (monthNamesShort[to.getMonth()]));
-
         getExpLinkArray.push({
           from: from.getDate() + "-" + (from.getMonth() + 1) + "-" + (from.getFullYear()),
           to: to.getDate() + "-" + (to.getMonth() + 1) + "-" + (to.getFullYear())
@@ -108,7 +108,7 @@
             datasets: endDataSetStack
           };
 
-          var ctxStack = document.getElementById('exp-stack-chart-area').getContext('2d');
+          var ctxStack = document.getElementById('bank-stack-chart-area').getContext('2d');
           window.myStackBar = new Chart(ctxStack, {
             type: 'bar',
             data: stackBarChartData,
@@ -135,10 +135,8 @@
                 if (typeof two[0] !== 'undefined') {
                   var index = getExpLinkArray[two[0]._index];
 
-                  window.open("/expenses/chartsimple?exp_from_date=" + index.from + "&exp_to_date=" + index.to, '_blank');
+                  window.open("/bank/chartsimple?from_date=" + index.from + "&to_date=" + index.to, '_blank');
 
-                  // $("#showExp").attr('src', "/expenses/chartsimple?exp_from_date=" + index.from + "&exp_to_date=" + index.to)
-                  // http://192.168.99.100:1337/expenses/chart?exp_from_date=15-4-2018&exp_to_date=14-5-2018
                 }
 
               }

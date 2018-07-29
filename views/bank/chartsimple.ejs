@@ -1,7 +1,7 @@
 <%- partial('./header.ejs') %>
 
 
-<form name="filter_form" id="filter_form" method="get" action="/bank/chart">
+<form name="filter_form" id="filter_form" method="get" action="/bank/chartsimple">
     <div class="d-flex mt-3 flex-row justify-content-around align-self-stretch  mr-auto">
         <div class="p1">
 
@@ -37,31 +37,31 @@
 </form>
 
 <div class="d-flex mt-2 mb-5 flex-row justify-content-around align-self-stretch  mr-auto">
-    <div class="col-md-12">
+    <div class="col-md-6">
         <div class="d-flex">
             <div id="canvas-holder" style="width:100%">
-                <canvas id="chart-area"></canvas>
+                <canvas id="bank-chart-area"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="d-flex">
+            <div id="canvas-holder" style="width:100%">
+                <canvas id="bank-chart-area-subcat"></canvas>
             </div>
         </div>
     </div>
 </div>
 
 <div class="d-flex mt-2 mb-5 flex-row justify-content-around align-self-stretch  mr-auto">
-    <div class="col-md-12">
+    <div class="col-md-3"></div>
+    <div class="col-md-6">
         <div class="d-flex">
             <div id="canvas-holder" style="width:100%">
-                <canvas id="chart-area-subcat"></canvas>
+                <canvas id="bank-chart-area-title"></canvas>
             </div>
         </div>
     </div>
-</div>
-
-<div class="d-flex mt-2 mb-5 flex-row justify-content-around align-self-stretch  mr-auto">
-    <div class="col-md-12">
-        <div class="d-flex">
-            <div id="canvas-holder" style="width:100%">
-                <canvas id="chart-area-title"></canvas>
-            </div>
-        </div>
-    </div>
+    <div class="col-md-3"></div>
 </div>

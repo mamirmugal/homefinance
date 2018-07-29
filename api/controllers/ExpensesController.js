@@ -2123,7 +2123,7 @@ module.exports = {
    */
   monthlybar: ((req, res) => {
 
-    let dates = myProjService.getToFromDate();
+    let dates = myProjService.getMonthlyToFromDate();
 
     let tDate = dates.pop();
     let fDate = dates.pop();
@@ -2208,6 +2208,13 @@ module.exports = {
           ]);
         }
 
+        // Pushing last date from loop and also the date which
+        // is seleted by user
+        dates.push([
+          new Date(monthlyDates[monthlyDates.length-1].dates.getTime()),
+          ttDate
+        ]);
+
         // converting the date to show on browser
         let toDate = myProjService.formatFromDate(tDate);
         let fromDate = myProjService.formatFromDate(fDate);
@@ -2215,7 +2222,7 @@ module.exports = {
         res.view('expenses/monthlybarchart', {
           toDate: toDate.toLocaleString(),
           fromDate: fromDate.toLocaleString(),
-          arrExpWeeklyBar: dates,
+          arrExpMonthlyBar: dates,
           category: category,
         });
 

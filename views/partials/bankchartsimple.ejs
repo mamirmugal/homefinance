@@ -1,0 +1,222 @@
+<% if(typeof chart_bank_filter !== 'undefined'){ %>
+<script>
+    var bankDataes = [];
+    var bankDataLabels = [];
+    var bankSetColors = [];
+    var bankColor = shuffle(color.slice());
+    <% chart_bank_filter.forEach(function(item, index){ %>
+    bankDataes.push(<%= item.sum %>)
+    bankDataLabels.push('<%= item._id %>')
+    bankSetColors.push(bankColor.pop())
+    <% }) %>
+
+    var configExpMain = {
+      type: 'doughnut',
+      data: {
+        datasets: [{
+          data: bankDataes,
+          backgroundColor: bankSetColors,
+          label: 'Filter Expenses Categories'
+        }],
+        labels: bankDataLabels
+      },
+      options: {
+        responsive: true,
+        legend: {
+          position: 'top',
+        },
+        title: {
+          display: true,
+          text: 'Filter Expenses Categories'
+        },
+        animation: {
+          animateScale: true,
+          animateRotate: true
+        },
+        onClick: function (one, two) {
+          if (typeof two[0] !== 'undefined') {
+
+            // Calling ajax value to show subcategories
+            getExpSubCategories(bankDataLabels[two[0]._index])
+            console.log(bankDataLabels[two[0]._index])
+            // remove columns
+            // config.data.datasets[0].data.splice(two[0]._index, two[0]._index)
+            // window.myDoughnut.update();
+          }
+        }
+      }
+    };
+
+
+    function getExpSubCategories(cat) {
+
+      $.ajax({
+        method: "get",
+        url: "/bank/getSubCatSum",
+        data: {
+          cat: cat,
+          from_date: $("#from_date").val(),
+          to_date: $("#to_date").val(),
+        }
+      })
+        .done(function (msg) {
+
+          var bankSubCatDataSet = [];
+          var bankSubCatDataSetLabels = [];
+          var bankSubCatDataColor = [];
+          var bankColors = shuffle(color.slice());
+          for (var x in msg) {
+
+            bankSubCatDataSet.push(msg[x].sum)
+            bankSubCatDataSetLabels.push(msg[x]._id)
+            bankSubCatDataColor.push(bankColors.pop())
+
+          }
+          var bankConfigSecond = {
+            data: {
+              datasets: [{
+                data: bankSubCatDataSet,
+                backgroundColor: bankSubCatDataColor,
+                label: 'Sub Categories' // for legend
+              }],
+              labels: bankSubCatDataSetLabels
+            },
+            options: {
+              responsive: true,
+              legend: {
+                position: 'right',
+              },
+              title: {
+                display: true,
+                text: 'Sub Categories ' + cat
+              },
+              scale: {
+                ticks: {
+                  beginAtZero: true
+                },
+                reverse: false
+              },
+              animation: {
+                animateRotate: false,
+                animateScale: true
+              },
+              onClick: function (one, two) {
+
+                if (typeof two[0] !== 'undefined') {
+
+                  // Calling ajax value to show subcategories
+                  getExpTitleSum(cat, bankSubCatDataSetLabels[two[0]._index]);
+                }
+
+              }
+            }
+          };
+
+          // Remove the old object
+          if (typeof window.myExpPolarArea != 'undefined') {
+            window.myExpPolarArea.destroy();
+          }
+
+          // Create a new object
+          var ctxsExp = document.getElementById('bank-chart-area-subcat');
+          window.myExpPolarArea = Chart.PolarArea(ctxsExp, bankConfigSecond);
+        });
+
+    }
+
+
+    // window.onload = function () {
+    jQuery(function ($) {
+      if (document.getElementById('bank-chart-area') != null) {
+        var ctxExp = document.getElementById('bank-chart-area').getContext('2d');
+        window.myExpDoughnut = new Chart(ctxExp, configExpMain);
+      }
+    })
+
+    // };
+
+
+    /**
+     * Getting title from sub category
+     *
+     * @author Muhammad Amir
+     * @param subcat
+     */
+    function getExpTitleSum(cat, subcat) {
+
+      $.ajax({
+        method: "get",
+        url: "/bank/getTitleSum",
+        data: {
+          cat: cat,
+          subcat: subcat,
+          from_date: $("#from_date").val(),
+          to_date: $("#to_date").val(),
+        }
+      })
+        .done(function (msg) {
+
+          var dataSetExpTitle = [];
+          var dataSetExpTitleLabels = [];
+          var dataSetExpTitleColor = [];
+          var bankColorTitle = shuffle(color.slice());
+          for (var x in msg) {
+
+            dataSetExpTitle.push(msg[x].sum)
+            dataSetExpTitleLabels.push(msg[x]._id)
+            dataSetExpTitleColor.push(bankColorTitle.pop())
+
+          }
+          var bankConfigThird = {
+            data: {
+              datasets: [{
+                data: dataSetExpTitle,
+                backgroundColor: dataSetExpTitleColor,
+                label: 'Title' // for legend
+              }],
+              labels: dataSetExpTitleLabels
+            },
+            options: {
+              responsive: true,
+              legend: {
+                position: 'right',
+              },
+              title: {
+                display: true,
+                text: 'Sub Title ' + subcat
+              },
+              scale: {
+                ticks: {
+                  beginAtZero: true
+                },
+                reverse: false
+              },
+              animation: {
+                animateRotate: false,
+                animateScale: true
+              },
+              onClick: function (one, two) {
+
+                // if (typeof two[0] !== 'undefined') {
+                //
+                // // Calling ajax value to show subcategories
+                // getExpTitleSum(dataSetExpTitleLabels[two[0]._index]);
+                // }
+
+              }
+            }
+          };
+
+          // Remove the old object
+          if (typeof window.myExpSubcat != 'undefined') {
+            window.myExpSubcat.destroy();
+          }
+
+          // Create a new object
+          var catExpTitle = document.getElementById('bank-chart-area-title');
+          window.myExpSubcat = Chart.PolarArea(catExpTitle, bankConfigThird);
+        });
+
+    }
+</script>
+<% } %>

@@ -171,6 +171,16 @@ module.exports = {
         let subcat = array.pop();
         let cat = array.pop();
 
+        // this is to add previous fields to the
+        // add method
+        if (typeof req.session.banksame != 'undefined') {
+          fields.dates = moment(req.session.banksame.dates).format("DD-MM-YYYY");
+          fields.category = req.session.banksame.category;
+          fields.subcategory = req.session.banksame.subcategory;
+          fields.title = req.session.banksame.title;
+          fields.amount = req.session.banksame.amount;
+        }
+
         res.view('bank/add', {
           dates: dates,
           fields: fields,
@@ -217,8 +227,18 @@ module.exports = {
         // Adding last added row to the session
         req.session.edit = reqs.id;
 
-        if (typeof req.body.add_another != 'undefined')
+        if (typeof req.body.add_another != 'undefined') {
+
+          req.session.banksame = {
+            dates: myProjService.parseDate(req.body.dates),
+            title: req.body.title,
+            category: req.body.category,
+            subcategory: req.body.subcategory,
+            amount: req.body.amount,
+          };
+
           res.redirect('bank/add');
+        }
         else
           res.redirect('bank');
       })
@@ -364,7 +384,7 @@ module.exports = {
       slug_subcategory: slugify(req.body.subcategory), // saving slug value, will be used for searching
       amount: req.body.amount,
       descp: req.body.descp,
-      amount_type: req.body.amount_type,
+      amount_type: req.body.amount_type
     };
 
     if (typeof req.body.salary != "undefined") {
@@ -559,8 +579,6 @@ module.exports = {
               // error then throw error
               if (err)
                 reject(err);
-
-              // console.log(array)
 
               array.push(rows)
               // if resolved the send to next promise
@@ -1556,6 +1574,292 @@ module.exports = {
       .catch((error) => {
         console.log(error)
       })
+  }),
+
+
+  /**
+   * This will show monthly chat
+   *
+   * @author Muhammad Amir
+   */
+  monthlybar: ((req, res) => {
+
+    let dates = myProjService.getMonthlyToFromDate();
+
+    let tDate = dates.pop();
+    let fDate = dates.pop();
+
+    if (req.param('exp_to_date') && req.param('exp_from_date')) {
+      tDate = myProjService.getDateFromString(req.param('exp_to_date'));
+      fDate = myProjService.getDateFromString(req.param('exp_from_date'));
+    }
+
+
+    // getting the prev month range
+    // this range will helpful to get the salary time
+    let ffDate = new Date(fDate.getTime());
+    ffDate.setDate(fDate.getDate() - 7);
+
+    // getting the next month range
+    // this range will helpful to get the salary time
+    let ttDate = new Date(tDate.getTime());
+    ttDate.setDate(tDate.getDate() + 7);
+
+
+    // db.expenses.find({ salary: {$exists:1}, dates: {$gte: "2018-02-06T13:00:00.000Z", $lte: "2018-08-21T14:00:00.000Z"}});
+    let promise = new Promise((resolve, reject) => {
+
+      // getting only the salary dates from specific date range
+      Bank.find(
+        {
+          salary: {$exists: 1},
+          dates: {$gte: ffDate, $lte: ttDate}
+        },
+        {
+          fields: ['dates']
+        })
+        .then((rows) => {
+
+          resolve([rows]);
+
+        }).catch((error) => {
+        reject(error);
+      })
+
+
+    });
+
+    promise
+      .then((arr) => {
+
+        // Promise to fix the native mongo command
+        return new Promise((resolve, reject) => {
+
+          Bank.native((err, collection) => {
+
+            // throw error when error
+            if (err)
+              reject(err);
+
+            collection.distinct('category', (err, rows) => {
+
+              // error then throw error
+              if (err)
+                reject(err);
+
+              arr.push(rows)
+              // if resolved the send to next promise
+              resolve(arr);
+            });
+          });
+
+        });
+      })
+      .then((rows) => {
+
+        var category = rows.pop();
+        var monthlyDates = rows.pop();
+
+        let dates = [];
+        // creating dates arrays for bar chart
+        for (let x = 0; x < monthlyDates.length - 1; x++) {
+
+          // Getting one day previous
+          // so that the days dont clash and payment get transferred to next month
+          let nextDate = new Date(monthlyDates[x + 1].dates.getTime());
+          nextDate.setDate(nextDate.getDate() - 1);
+
+          dates.push([
+            new Date(monthlyDates[x].dates.getTime()),
+            nextDate
+          ]);
+        }
+
+        // Pushing last date from loop and also the date which
+        // is selected by user
+        let nextDate = new Date(monthlyDates[monthlyDates.length-1].dates.getTime());
+        nextDate.setDate(nextDate.getDate() - 1);
+        dates.push([
+          nextDate,
+          ttDate
+        ]);
+
+        // converting the date to show on browser
+        let toDate = myProjService.formatFromDate(tDate);
+        let fromDate = myProjService.formatFromDate(fDate);
+
+        res.view('bank/monthlybarchart', {
+          toDate: toDate.toLocaleString(),
+          fromDate: fromDate.toLocaleString(),
+          arrBankMonthlyBar: dates,
+          category: category,
+        });
+
+      }).catch((error) => {
+      console.log(error)
+    });
+
+  }),
+
+
+  /**
+   * getMonthly stack ajax data
+   *
+   * @author Muhammad Amir
+   */
+  getBankMonthlyStackCatSum: ((req, res) => {
+
+    let dates = myProjService.getToFromDate();
+
+    let tDate = dates.pop();
+    let fDate = dates.pop();
+
+    if (req.param('exp_to_date') && req.param('exp_from_date')) {
+      tDate = myProjService.getDateFromString(req.param('exp_to_date'));
+      fDate = myProjService.getDateFromString(req.param('exp_from_date'));
+    }
+
+    // Promise to fix the native mongo command
+    let promise = new Promise((resolve, reject) => {
+
+      Bank.native((err, collection) => {
+
+        // throw error when error
+        if (err)
+          reject(err);
+
+        collection.aggregate([{
+          $match: {
+            $and: [
+              {dates: {$gte: fDate, $lte: tDate}},
+              {amount_type: 'subtracted'}
+            ]
+          }
+        },
+          {
+            $group: {_id: '$category', sum: {$sum: "$amount"}}
+          }
+        ])
+          .toArray((err, rows) => {
+
+            // error then throw error
+            if (err)
+              reject(err);
+
+            // if resolved the send to next promise
+            resolve(rows);
+          });
+      });
+    });
+
+
+    // Promise returned from getting cat or subcat
+    promise
+      .then((cat) => {
+        if (cat.length > 0) {
+
+          // converting data to object with key as category name and sum and value
+          // which will be used by js to show the stack barchart
+          let category = {};
+          cat.forEach(function (item) {
+            category[item._id] = item.sum;
+          });
+
+          return res.json(category);
+        }
+        else
+          return res.json({});
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+  }),
+
+
+  /**
+   * Chart page
+   *
+   * @author Muhammad Amir
+   */
+  chartsimple: ((req, res) => {
+
+    let dates = myProjService.getToFromDate();
+
+    let tDate = dates.pop();
+    let fDate = dates.pop();
+
+    if (req.param('to_date') && req.param('from_date')) {
+      tDate = myProjService.getDateFromString(req.param('to_date'));
+      fDate = myProjService.getDateFromString(req.param('from_date'));
+    }
+
+    // Replacing with new start date and time
+    if (typeof prev != 'undefined' && typeof prev[0] != 'undefined') {
+      fDate = new Date(prev[0].dates.getTime());
+    }
+
+    // Replacing with new start date and time
+    if (typeof next != 'undefined' && typeof next[0] != 'undefined') {
+      tDate = new Date(next[0].dates.getTime());
+      // setting up one day before the salary came
+      tDate.setDate(tDate.getDate() - 1);
+    }
+
+
+    let toDate = myProjService.formatFromDate(tDate);
+    let fromDate = myProjService.formatFromDate(fDate);
+
+
+    // Promise to fix the native mongo command
+    let promise = new Promise((resolve, reject) => {
+
+      Bank.native((err, collection) => {
+
+        // throw error when error
+        if (err)
+          reject(err);
+
+        collection.aggregate([{
+          $match: {
+            $and: [
+              {dates: {$gte: fDate, $lte: tDate}},
+              {amount_type: 'subtracted'}
+            ]
+          }
+        },
+          {
+            $group: {_id: '$category', sum: {$sum: "$amount"}}
+          }
+        ])
+
+          .toArray((err, rows) => {
+
+            // error then throw error
+            if (err)
+              reject(err);
+
+            // if resolved the send to next promise
+            resolve(rows);
+          });
+
+      });
+
+    });
+
+    promise
+      .then((cat) => {
+
+        res.view('bank/chartsimple', {
+          chart_bank_filter: cat,
+          toDate: toDate,
+          fromDate: fromDate,
+        });
+
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+
   }),
 
 };

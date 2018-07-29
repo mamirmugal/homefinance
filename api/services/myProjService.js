@@ -199,6 +199,39 @@ module.exports = {
 
 
   /**
+   * getting the Date range for one months total
+   *
+   * @author  Muhammad Amir
+   * @param   month
+   * @param   year
+   * @returns {*[]}
+   */
+  getMonthlyToFromDate: (month, year) => {
+
+    var d = new Date();
+    if (typeof month === 'undefined') {
+      month = d.getMonth();
+    }
+    if (typeof year === 'undefined') {
+      year = d.getFullYear();
+    }
+
+    var fromDate;
+    var toDate;
+    if (d.getDate() < 14) {
+      fromDate = new Date(year, (month - 7), 15); // getting 15 of previous month
+      toDate = new Date(year, month, 14); // getting 15th of current month
+    }
+    else {
+      fromDate = new Date(year, (month - 6), 15); // getting 15 of current month
+      toDate = new Date(year, (month + 1), 14); // getting 16th of next month
+    }
+
+    return [fromDate, toDate];
+  },
+
+
+  /**
    * Getting Bank Amount type
    *
    * @author  Muhammad Amir
